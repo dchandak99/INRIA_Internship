@@ -1,0 +1,99 @@
+theory Tutorial
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+builtins: hashing, asymmetric-encryption
+
+heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule Rep_0_: // [process=top-level] Rep, 0 
+ [State_()] --[]-> [!Semistate_1()]
+
+rule Rep_1_: // [process=top-level] Rep, 1 
+ [!Semistate_1()] --[]-> [State_1()]
+
+rule in_S_1: // [process=top-level] in $S 
+ [State_1(), In($S)] --[]-> [State_11($S)]
+
+rule new_ltk_11: // [process=top-level] new ltk 
+ [State_11($S), Fr(ltk)] --[]-> [State_111($S, ltk)]
+
+rule Par_111: // [process=top-level] Par 
+ [State_111($S, ltk)] --[]-> [State_1111($S, ltk), State_1112($S, ltk)]
+
+rule Par_1111: // [process=top-level] Par 
+ [State_1111($S, ltk)] --[]-> [State_11111($S, ltk), State_11112($S, ltk)]
+
+rule event_LtkReveal_S_11111 [color=#569DC0]: // [process=P_reveal_server] event LtkReveal($S) 
+ [State_11111($S, ltk)] --[Event(), LtkReveal($S)]-> [State_111111($S, ltk)]
+
+rule out_ltk_111111 [color=#569DC0]: // [process=P_reveal_server] out ltk 
+ [State_111111($S, ltk)] --[]-> [State_1111111($S, ltk), Out(ltk)]
+
+rule Zero_1111111 [color=#569DC0]: // [process=P_reveal_server] Zero 
+ [State_1111111($S, ltk)] --[]-> []
+
+rule Rep_0_11112: // [process=top-level] Rep, 0 
+ [State_11112($S, ltk)] --[]-> [!Semistate_111121($S, ltk)]
+
+rule Rep_1_11112: // [process=top-level] Rep, 1 
+ [!Semistate_111121($S, ltk)] --[]-> [State_111121($S, ltk)]
+
+rule new_key_111121 [color=#2CD719]: // [process=PQ] new key 
+ [State_111121($S, ltk), Fr(key)] --[]-> [State_1111211($S, key, ltk)]
+
+rule event_Client_init_S_key_1111211 [color=#2CD719]: // [process=PQ] event Client_init($S, key) 
+ [State_1111211($S, key, ltk)] --[Event(), Client_init($S, key)]-> [State_11112111($S, key, ltk)]
+
+rule out_aenckey_pkltk_11112111 [color=#2CD719]: // [process=PQ] out aenc(key, pk(ltk)) 
+ [State_11112111($S, key, ltk)] --[]-> [State_111121111($S, key, ltk), Out(aenc(key, pk(ltk)))]
+
+rule in_hkey_111121111 [color=#2CD719]: // [process=PQ] in h(key) 
+ [State_111121111($S, key, ltk), In(h(key))] --[]-> [State_1111211111($S, key, ltk)]
+
+rule event_Record_Sess_S_key_1111211111 [color=#2CD719]: // [process=PQ] event Record_Sess($S, key) 
+ [State_1111211111($S, key, ltk)] --[Event(), Record_Sess($S, key)]-> [State_11112111111($S, key, ltk)]
+
+rule Zero_11112111111 [color=#2CD719]: // [process=PQ] Zero 
+ [State_11112111111($S, key, ltk)] --[]-> []
+
+rule Rep_0_1112: // [process=top-level] Rep, 0 
+ [State_1112($S, ltk)] --[]-> [!Semistate_11121($S, ltk)]
+
+rule Rep_1_1112: // [process=top-level] Rep, 1 
+ [!Semistate_11121($S, ltk)] --[]-> [State_11121($S, ltk)]
+
+rule in_request_11121 [color=#11EC28]: // [process=R] in request 
+ [State_11121($S, ltk), In(request)] --[]-> [State_111211($S, ltk, request)]
+
+rule event_Ans_req_S_adecrequest_ltk_111211 [color=#11EC28]: // [process=R] event Ans_req($S, adec(request, ltk)) 
+ [State_111211($S, ltk, request)] --[Event(), Ans_req($S, adec(request, ltk))]-> [State_1112111($S, ltk, request)]
+
+rule out_hadecrequest_ltk_1112111 [color=#11EC28]: // [process=R] out h(adec(request, ltk)) 
+ [State_1112111($S, ltk, request)] --[]-> [State_11121111($S, ltk, request), Out(h(adec(request, ltk)))]
+
+rule Zero_11121111 [color=#11EC28]: // [process=R] Zero 
+ [State_11121111($S, ltk, request)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+lemma Client_session_key_secrecy :
+"	not( Ex S k #i #j. Record_Sess(S, k) @ #i & K(k) @ #j & not( Ex #r. LtkReveal(S) @ r ) )"
+
+lemma Client_auth :
+"	( All S k #i. Record_Sess(S, k) @ #i ==> ( ( Ex #a. Ans_req(S, k) @ a ) | ( Ex #r. LtkReveal(S) @ r & r < i ) ) )"
+
+lemma Client_auth_injective :
+"	( All S k #i. Record_Sess(S, k) @ #i ==> ( ( Ex #a. Ans_req(S, k) @ a & ( All #j. Record_Sess(S, k) @ #j ==> #i = #j ) ) | ( Ex #r. LtkReveal(S) @ r & r < i ) ) )"
+
+lemma Client_session_key_honest_setup : exists-trace
+"	Ex S k #i. Record_Sess(S, k) @ #i & not( Ex #r. LtkReveal(S) @ r )"
+
+end

@@ -1,0 +1,27 @@
+/*	example illustrating private channels 	*/
+
+theory ChannelsTestOne
+begin
+
+/* Check for communication on private channels */
+/*  - communication is private */
+/*  - communication is possible */
+builtins: asymmetric-encryption
+functions: penc/3, pdec/2, pk/1
+equations: pdec(penc(m, r, pk(skk)), skk) = m
+
+
+let P = event Secret(diff(a, b)); out (c, diff(a, b)) 
+let Q = in(c, x); new r; event Received(x); out(aenc(x, pk(skk)))	// with out(x) attack
+
+new c; new skk; out(pk(skk)); in(a); in(b); (P || Q)
+
+lemma secret : 
+      "All x #i. ( Secret(x) @ i ==> not (Ex #j. K(x) @ j) )"
+
+lemma received : exists-trace
+      "Ex x #i. Received(x) @ i"
+
+end
+
+/* vim: set filetype=apip */

@@ -1,0 +1,35 @@
+theory Simple
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+functions: penc/3, pdec/2, pk/1
+
+equations: pdec(penc(m, r, pk(skk)), skk)=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule new_skk_: // [process=top-level] new skk 
+ [State_(), Fr(skk)] --[]-> [State_1(skk)]
+
+rule new_r_1: // [process=top-level] new r 
+ [State_1(skk), Fr(r)] --[]-> [State_11(r, skk)]
+
+rule out_pkskk_11 [color=#569DC0]: // [process=P] out pk(skk) 
+ [State_11(r, skk)] --[]-> [State_111(r, skk), Out(pk(skk))]
+
+rule out_pencdiff_a_b__r_pkskk_111 [color=#569DC0]: // [process=P] out penc(diff('a', 'b'), r, pk(skk)) 
+ [State_111(r, skk)] --[]-> [State_1111(r, skk), Out(penc(diff('a', 'b'), r, pk(skk)))]
+
+rule Zero_1111 [color=#569DC0]: // [process=P] Zero 
+ [State_1111(r, skk)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+end

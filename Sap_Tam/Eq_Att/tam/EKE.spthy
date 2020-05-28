@@ -1,0 +1,97 @@
+theory EKE
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+builtins: asymmetric-encryption
+
+functions: enc/2, dec/2
+
+equations: dec(enc(m, k), k)=m,enc(dec(m, k), k)=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule new_w1_: // [process=top-level] new w1 
+ [State_(), Fr(w1)] --[]-> [State_1(w1)]
+
+rule new_w_1: // [process=top-level] new w 
+ [State_1(w1), Fr(w)] --[]-> [State_11(w, w1)]
+
+rule Par_11: // [process=top-level] Par 
+ [State_11(w, w1)] --[]-> [State_111(w, w1), State_112(w, w1)]
+
+rule new_k_111 [color=#569DC0]: // [process=A] new k 
+ [State_111(w, w1), Fr(k)] --[]-> [State_1111(k, w, w1)]
+
+rule out_encpkk_w_1111 [color=#569DC0]: // [process=A] out enc(pk(k), w) 
+ [State_1111(k, w, w1)] --[]-> [State_11111(k, w, w1), Out(enc(pk(k), w))]
+
+rule in_x3_11111 [color=#569DC0]: // [process=A] in x3 
+ [State_11111(k, w, w1), In(x3)] --[]-> [State_111111(k, w, w1, x3)]
+
+rule new_na_111111 [color=#569DC0]: // [process=A] new na 
+ [State_111111(k, w, w1, x3), Fr(na)] --[]-> [State_1111111(k, na, w, w1, x3)]
+
+rule out_encna_adecdecx3_w_k_1111111 [color=#569DC0]: // [process=A] out enc(na, adec(dec(x3, w), k)) 
+ [State_1111111(k, na, w, w1, x3)] --[]-> [State_11111111(k, na, w, w1, x3), Out(enc(na, adec(dec(x3, w), k)))]
+
+rule in_x3_11111111 [color=#569DC0]: // [process=A] in x3 
+ [State_11111111(k, na, w, w1, x3), In(x3)] --[]-> [State_111111111(k, na, w, w1, x3)]
+
+rule if_equaldecx3_adecdecx3_w_k_na_0_111111111 [color=#569DC0]: // [process=A] if equal(dec(x3, adec(dec(x3, w), k)), na), 0 
+ [State_111111111(k, na, w, w1, x3)] --[Pred_equal(dec(x3, adec(dec(x3, w), k)), na)]-> [State_1111111111(k, na, w, w1, x3)]
+
+rule if_equaldecx3_adecdecx3_w_k_na_1_111111111 [color=#569DC0]: // [process=A] if equal(dec(x3, adec(dec(x3, w), k)), na), 1 
+ [State_111111111(k, na, w, w1, x3)] --[Pred_not_equal(dec(x3, adec(dec(x3, w), k)), na)]-> [State_1111111112(k, na, w, w1, x3)]
+
+rule out_encsnddecx3_adecdecx3_w_k_adecdecx3_w_k_1111111111 [color=#2CD719]: // [process=P] out enc(snd(dec(x3, adec(dec(x3, w), k))), adec(dec(x3, w), k)) 
+ [State_1111111111(k, na, w, w1, x3)] --[]-> [State_11111111111(k, na, w, w1, x3), Out(enc(snd(dec(x3, adec(dec(x3, w), k))), adec(dec(x3, w), k)))]
+
+rule out_diffw_w1_11111111111 [color=#2CD719]: // [process=P] out diff(w, w1) 
+ [State_11111111111(k, na, w, w1, x3)] --[]-> [State_111111111111(k, na, w, w1, x3), Out(diff(w, w1))]
+
+rule Zero_111111111111 [color=#2CD719]: // [process=P] Zero 
+ [State_111111111111(k, na, w, w1, x3)] --[]-> []
+
+rule Zero_1111111112 [color=#569DC0]: // [process=A] Zero 
+ [State_1111111112(k, na, w, w1, x3)] --[]-> []
+
+rule in_x1_112 [color=#11EC28]: // [process=B] in x1 
+ [State_112(w, w1), In(x1)] --[]-> [State_1121(w, w1, x1)]
+
+rule new_r_1121 [color=#11EC28]: // [process=B] new r 
+ [State_1121(w, w1, x1), Fr(r)] --[]-> [State_11211(r, w, w1, x1)]
+
+rule out_encaencr_decx1_w_w_11211 [color=#11EC28]: // [process=B] out enc(aenc(r, dec(x1, w)), w) 
+ [State_11211(r, w, w1, x1)] --[]-> [State_112111(r, w, w1, x1), Out(enc(aenc(r, dec(x1, w)), w))]
+
+rule in_x2_112111 [color=#11EC28]: // [process=B] in x2 
+ [State_112111(r, w, w1, x1), In(x2)] --[]-> [State_1121111(r, w, w1, x1, x2)]
+
+rule new_nb_1121111 [color=#11EC28]: // [process=B] new nb 
+ [State_1121111(r, w, w1, x1, x2), Fr(nb)] --[]-> [State_11211111(nb, r, w, w1, x1, x2)]
+
+rule out_enc_decx2_r_nb_r_11211111 [color=#11EC28]: // [process=B] out enc(<dec(x2, r), nb>, r) 
+ [State_11211111(nb, r, w, w1, x1, x2)] --[]-> [State_112111111(nb, r, w, w1, x1, x2), Out(enc(<dec(x2, r), nb>, r))]
+
+rule in_encnb_r_112111111 [color=#11EC28]: // [process=B] in enc(nb, r) 
+ [State_112111111(nb, r, w, w1, x1, x2), In(enc(nb, r))] --[]-> [State_1121111111(nb, r, w, w1, x1, x2)]
+
+rule Zero_1121111111 [color=#11EC28]: // [process=B] Zero 
+ [State_1121111111(nb, r, w, w1, x1, x2)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+restriction predicate1:
+	"All #i h1 h2. Pred_not_equal(h1,h2)@i ==> not(h1 = h2)"
+
+restriction predicate0:
+	"All #i h1 h2. Pred_equal(h1,h2)@i ==> h1 = h2"
+
+end

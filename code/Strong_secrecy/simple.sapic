@@ -1,0 +1,19 @@
+/*	example illustrating private channels 	*/
+
+theory Simple
+begin
+
+/* Check for communication on private channels */
+/*  - communication is private */
+/*  - communication is possible */
+builtins: asymmetric-encryption
+
+
+let P = out(pk(skk)); out(aenc(diff('a', 'b'), pk(skk)))
+
+new skk; P 
+
+
+end
+
+/* vim: set filetype=apip */

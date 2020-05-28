@@ -1,0 +1,43 @@
+theory EKE
+
+begin
+
+builtins: asymmetric-encryption
+functions: enc/2, dec/2
+equations: dec(enc(m,k),k) = m, enc(dec(m,k),k) = m
+predicates:
+equal(h1,h2) <=> h1=h2
+
+let P = let xnb = snd(dec(x3, xr)) in
+        out(enc(xnb, xr));
+        out(diff(w, w1))
+
+let A = new k;
+        out(enc(pk(k), w)); 
+        in(x3);
+        //in(enc(aenc(xr, pk(k)), w));
+        let x4 = dec(x3, w) in
+        let xr = adec(x4, k) in
+        new na;
+        out(enc(na, xr));
+        //in(enc(<na, xnb>, xr));
+        in(x3);
+        if equal(dec(x3, xr), na) then 
+        P
+        
+let B = in(x1);
+        let xpk = dec(x1, w) in
+
+        new r;
+        out(enc(aenc(r, xpk), w));
+        in(x2); 
+        let xna = dec(x2, r) in
+        new nb;
+        out(enc(<xna, nb>, r));
+        in(enc(nb,r))
+
+
+new w1; new w; (A || B)  //out(diff(w, w1))
+
+end
+

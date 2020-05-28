@@ -1,0 +1,43 @@
+theory c1_diff
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule new_c_: // [process=top-level] new c 
+ [State_(), Fr(c)] --[]-> [State_1(c)]
+
+rule Par_1: // [process=top-level] Par 
+ [State_1(c)] --[]-> [State_11(c), State_12(c)]
+
+rule out_diffc_c__a_0_11: // [process=top-level] out diff(c, 'c'),'a', 0 
+ [State_11(c), In(diff(c, 'c'))] --[ChannelInEvent(diff(c, 'c'))]-> [Out('a'), State_111(c)]
+
+rule out_diffc_c__a_1_11: // [process=top-level] out diff(c, 'c'),'a', 1 
+ [State_11(c)] --[]-> [Semistate_11(c), Message(diff(c, 'c'),'a')]
+
+rule out_diffc_c__a_2_11: // [process=top-level] out diff(c, 'c'),'a', 2 
+ [Semistate_11(c), Ack(diff(c, 'c'),'a')] --[]-> [State_111(c)]
+
+rule Zero_111: // [process=top-level] Zero 
+ [State_111(c)] --[]-> []
+
+rule in_diffc_c__a_0_12: // [process=top-level] in diff(c, 'c'),'a', 0 
+ [State_12(c), In(<diff(c, 'c'), 'a'>)] --[ChannelInEvent(<diff(c, 'c'), 'a'>)]-> [State_121(c)]
+
+rule in_diffc_c__a_1_12: // [process=top-level] in diff(c, 'c'),'a', 1 
+ [State_12(c), Message(diff(c, 'c'),'a')] --[]-> [Ack(diff(c, 'c'),'a'), State_121(c)]
+
+rule Zero_121: // [process=top-level] Zero 
+ [State_121(c)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+end

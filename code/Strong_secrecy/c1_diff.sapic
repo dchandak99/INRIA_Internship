@@ -1,0 +1,12 @@
+theory c1_diff
+
+begin
+
+// new c; new d; (out(diff(c, d), 'a') || in(diff(c, d), 'a'))  //holds
+// out(diff('c', 'd'), 'a')                                     //attack
+// new c;  (out(diff(c, 'c'), 'a') || in(c, 'a') )              //attack
+   new c;  (out(diff(c, 'c'), 'a') || in(diff(c,'c'), 'a') )    //attack
+
+//new c; out(c, diff('a', 'b'))    //holds 
+
+end

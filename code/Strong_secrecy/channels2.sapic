@@ -1,0 +1,18 @@
+/*
+example illustrating private channels
+*/
+
+theory ChannelTestTwo
+begin
+
+let P = out (diff(x, y)); event Reached()
+
+new c; in( x); in(y); P 
+ 
+//it is impossible to reach event, because channel is synchronous 
+lemma received : 
+      "not(Ex #i. Reached() @ i)"
+
+end
+
+/* vim: set filetype=apip */

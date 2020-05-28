@@ -1,0 +1,21 @@
+/*	example illustrating private channels 	*/
+
+theory Simple
+begin
+
+/* Check for communication on private channels */
+/*  - communication is private */
+
+
+functions: penc/3, pdec/2, pk/1
+equations: pdec(penc(m, r, pk(skk)), skk) = m
+
+
+let P = out(pk(skk)); out(penc(diff('a', 'b'), r, pk(skk)))
+
+new skk; new r; P 
+
+
+end
+
+/* vim: set filetype=apip */

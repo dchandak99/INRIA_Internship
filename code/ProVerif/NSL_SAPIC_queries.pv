@@ -1,0 +1,651 @@
+(* 
+A -> B : { N_A, pkA }_pkB
+B -> A : { N_A, N_B, pkB }_pkA
+A -> B : { N_B }_pkB
+*)
+
+free c: channel.
+
+type nonce.
+type pkey.
+type skey.
+
+fun nonce_to_bitstring(nonce): bitstring [data,typeConverter].
+
+(* Public key encryption *)
+
+fun pk(skey): pkey.
+fun encrypt(bitstring, pkey): bitstring.
+reduc forall x: bitstring, y: skey; decrypt(encrypt(x,pk(y)),y) = x.
+
+(* Secrecy assumptions *)
+
+not attacker(new skA).
+not attacker(new skB).
+not attacker(new skC).
+(*
+not attacker(new k). *)
+
+
+event HonestA(pkey).
+event HonestB(pkey).
+event OUT_I_1(bitstring).
+event OUT_R_1(bitstring).
+event IN_I_2_nr(nonce, bitstring).
+event IN_R_1_ni(nonce, bitstring).
+event SessionA(pkey, pkey, nonce).
+event SessionB(pkey, pkey, nonce).
+
+(* Queries *)
+query pkA: pkey, pkxB:pkey, k:nonce ; event(SessionA(pkA, pkxB, k)).
+query pkxA: pkey, pkxB:pkey, xk:nonce ; event(SessionB(pkxA, pkxB, xk)).
+query pkA: pkey, pkxB:pkey, k:nonce; event(SessionA(pkA, pkxB, k)) ==> attacker(k).
+
+
+query secret k.
+
+let processInitiator() =
+        
+	new skA: skey; 
+	event HonestA(pk(skA));
+	let pkA = pk(skA) in
+        out(c, pkA);
+	!(in(c, (pkxB: pkey));
+	
+	new Na: nonce; 
+	event OUT_I_1(encrypt((Na, pk(skA)), pkxB));
+        out(c, encrypt((Na, pk(skA)), pkxB));
+        
+        in(c, m: bitstring); 
+        let (=Na, NX2: nonce, =pkxB) = decrypt(m, skA) in
+		event IN_I_2_nr(NX2, m);
+	new k: nonce;
+	
+        out(c, encrypt((nonce_to_bitstring(NX2), nonce_to_bitstring(k)), pkxB));
+		event SessionA(pkA, pkxB, k)).
+   
+let processResponder() =
+       
+	new skB: skey; 
+	new skC: skey; 
+	let pkB = pk(skB) in
+	let pkC = pk(skC) in
+        out(c, pkB);
+	out(c, pkC);
+	let aa = skB in 
+	event HonestB(pk(aa));
+	let pkxB = pk(aa) in
+
+	!(in(c, m: bitstring);
+
+	let (NY: nonce, pkxA: pkey) = decrypt(m, aa) in
+	event IN_R_1_ni(NY, m);
+        
+    new Nb: nonce;
+	event OUT_R_1(encrypt((NY, Nb, pkxB), pkxA));
+	out(c, encrypt((NY, Nb, pkxB), pkxA));
+
+	in(c, m3: bitstring);
+	let (NX: nonce, xk: nonce) = decrypt(m, aa) in
+	event SessionB(pkxA, pkxB, xk)).
+
+
+(* Start process *)
+
+process ((!processInitiator()) | (!processResponder()))
+
+(* Output:-
+
+Process 0 (that is, the initial process):
+(
+    {1}!
+    {2}new skA: skey;
+    {3}event HonestA(pk(skA));
+    {4}let pkA: pkey = pk(skA) in
+    {5}out(c, pkA);
+    {6}!
+    {7}in(c, pkxB: pkey);
+    {8}new Na: nonce;
+    {9}event OUT_I_1(encrypt((Na,pk(skA)),pkxB));
+    {10}out(c, encrypt((Na,pk(skA)),pkxB));
+    {11}in(c, m: bitstring);
+    {12}let (=Na,NX2: nonce,=pkxB) = decrypt(m,skA) in
+    {13}event IN_I_2_nr(NX2,m);
+    {14}new k: nonce;
+    {15}out(c, encrypt((NX2,k),pkxB));
+    {16}event SessionA(pkA,pkxB,k)
+) | (
+    {17}!
+    {18}new skB: skey;
+    {19}new skC: skey;
+    {20}let pkB: pkey = pk(skB) in
+    {21}let pkC: pkey = pk(skC) in
+    {22}out(c, pkB);
+    {23}out(c, pkC);
+    {24}let aa: skey = skB in
+    {25}event HonestB(pk(aa));
+    {26}let pkxB_1: pkey = pk(aa) in
+    {27}!
+    {28}in(c, m_1: bitstring);
+    {29}let (NY: nonce,pkxA: pkey) = decrypt(m_1,aa) in
+    {30}event IN_R_1_ni(NY,m_1);
+    {31}new Nb: nonce;
+    {32}event OUT_R_1(encrypt((NY,Nb,pkxB_1),pkxA));
+    {33}out(c, encrypt((NY,Nb,pkxB_1),pkxA));
+    {34}in(c, m3: bitstring);
+    {35}let (NX: nonce,xk: nonce) = decrypt(m_1,aa) in
+    {36}event SessionB(pkxA,pkxB_1,xk)
+)
+
+--  Process 1 (that is, process 0, encoded for secret k):
+(
+    {1}!
+    {2}new skA: skey;
+    {3}event HonestA(pk(skA));
+    {4}let pkA: pkey = pk(skA) in
+    {5}out(c, pkA);
+    {6}!
+    {7}in(c, pkxB: pkey);
+    {8}new Na: nonce;
+    {9}event OUT_I_1(encrypt((Na,pk(skA)),pkxB));
+    {10}out(c, encrypt((Na,pk(skA)),pkxB));
+    {11}in(c, m: bitstring);
+    {12}let (=Na,NX2: nonce,=pkxB) = decrypt(m,skA) in
+    {13}event IN_I_2_nr(NX2,m);
+    {14}new k: nonce;
+    {15}event k_contains(k);
+    {16}out(c, encrypt((NX2,k),pkxB));
+    {17}event SessionA(pkA,pkxB,k)
+) | (
+    {18}!
+    {19}new skB: skey;
+    {20}new skC: skey;
+    {21}let pkB: pkey = pk(skB) in
+    {22}let pkC: pkey = pk(skC) in
+    {23}out(c, pkB);
+    {24}out(c, pkC);
+    {25}let aa: skey = skB in
+    {26}event HonestB(pk(aa));
+    {27}let pkxB_1: pkey = pk(aa) in
+    {28}!
+    {29}in(c, m_1: bitstring);
+    {30}let (NY: nonce,pkxA: pkey) = decrypt(m_1,aa) in
+    {31}event IN_R_1_ni(NY,m_1);
+    {32}new Nb: nonce;
+    {33}event OUT_R_1(encrypt((NY,Nb,pkxB_1),pkxA));
+    {34}out(c, encrypt((NY,Nb,pkxB_1),pkxA));
+    {35}in(c, m3: bitstring);
+    {36}let (NX: nonce,xk: nonce) = decrypt(m_1,aa) in
+    {37}event SessionB(pkxA,pkxB_1,xk)
+)
+
+-- Query not event(SessionA(pkA_1,pkxB_2,k_1)) in process 1.
+Completing...
+ok, secrecy assumption verified: fact unreachable attacker(skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skC[!1 = v])
+Starting query not event(SessionA(pkA_1,pkxB_2,k_1))
+goal reachable: end(SessionA(pk(skA_1),pk(skB_1),k_1))
+Abbreviations:
+skA_1 = skA[!1 = @sid]
+skB_1 = skB[!1 = @sid_1]
+Na_1 = Na[pkxB = pk(skB_1),!2 = @sid_2,!1 = @sid]
+Nb_1 = Nb[m_1 = encrypt((Na_1,pk(skA_1)),pk(skB_1)),!2 = @sid_3,!1 = @sid_1]
+k_1 = k[m = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)),pkxB = pk(skB_1),!2 = @sid_2,!1 = @sid]
+
+Derivation:
+Abbreviations:
+skA_1 = skA[!1 = @sid]
+skB_1 = skB[!1 = @sid_1]
+Na_1 = Na[pkxB = pk(skB_1),!2 = @sid_2,!1 = @sid]
+Nb_1 = Nb[m_1 = encrypt((Na_1,pk(skA_1)),pk(skB_1)),!2 = @sid_3,!1 = @sid_1]
+k_1 = k[m = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)),pkxB = pk(skB_1),!2 = @sid_2,!1 = @sid]
+
+1. The message pk(skB_1) may be sent to the attacker at output {23}.
+attacker(pk(skB_1)).
+
+2. The message pk(skB_1) that the attacker may have by 1 may be received at input {7}.
+So the message encrypt((Na_1,pk(skA_1)),pk(skB_1)) may be sent to the attacker at output {10}.
+attacker(encrypt((Na_1,pk(skA_1)),pk(skB_1))).
+
+3. The message encrypt((Na_1,pk(skA_1)),pk(skB_1)) that the attacker may have by 2 may be received at input {29}.
+So the message encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) may be sent to the attacker at output {34}.
+attacker(encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))).
+
+4. The message pk(skB_1) that the attacker may have by 1 may be received at input {7}.
+The message encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) that the attacker may have by 3 may be received at input {11}.
+So event SessionA(pk(skA_1),pk(skB_1),k_1) may be executed at {17}.
+end(SessionA(pk(skA_1),pk(skB_1),k_1)).
+
+5. By 4, end(SessionA(pk(skA_1),pk(skB_1),k_1)).
+The goal is reached, represented in the following fact:
+end(SessionA(pk(skA_1),pk(skB_1),k_1)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new skB: skey creating skB_1 at {19} in copy a
+
+new skC: skey creating skC_1 at {20} in copy a
+
+out(c, ~M) with ~M = pk(skB_1) at {23} in copy a
+
+out(c, ~M_1) with ~M_1 = pk(skC_1) at {24} in copy a
+
+event HonestB(pk(skB_1)) at {26} in copy a
+
+new skA: skey creating skA_1 at {2} in copy a_1
+
+event HonestA(pk(skA_1)) at {3} in copy a_1
+
+out(c, ~M_2) with ~M_2 = pk(skA_1) at {5} in copy a_1
+
+in(c, ~M) with ~M = pk(skB_1) at {7} in copy a_1, a_2
+
+new Na: nonce creating Na_1 at {8} in copy a_1, a_2
+
+event OUT_I_1(encrypt((Na_1,pk(skA_1)),pk(skB_1))) at {9} in copy a_1, a_2
+
+out(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {10} in copy a_1, a_2
+
+in(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {29} in copy a, a_3
+
+event IN_R_1_ni(Na_1,encrypt((Na_1,pk(skA_1)),pk(skB_1))) at {31} in copy a, a_3
+
+new Nb: nonce creating Nb_1 at {32} in copy a, a_3
+
+event OUT_R_1(encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))) at {33} in copy a, a_3
+
+out(c, ~M_4) with ~M_4 = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) at {34} in copy a, a_3
+
+in(c, ~M_4) with ~M_4 = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) at {11} in copy a_1, a_2
+
+event IN_I_2_nr(Nb_1,encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))) at {13} in copy a_1, a_2
+
+new k: nonce creating k_1 at {14} in copy a_1, a_2
+
+event k_contains(k_1) at {15} in copy a_1, a_2
+
+out(c, ~M_5) with ~M_5 = encrypt((Nb_1,k_1),pk(skB_1)) at {16} in copy a_1, a_2
+
+event SessionA(pk(skA_1),pk(skB_1),k_1) at {17} in copy a_1, a_2 (goal)
+
+The event SessionA(pk(skA_1),pk(skB_1),k_1) is executed at {17} in copy a_1, a_2.
+A trace has been found.
+RESULT not event(SessionA(pkA_1,pkxB_2,k_1)) is false.
+-- Query not event(SessionB(pkxA_1,pkxB_2,xk_1)) in process 1.
+Completing...
+ok, secrecy assumption verified: fact unreachable attacker(skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skC[!1 = v])
+Starting query not event(SessionB(pkxA_1,pkxB_2,xk_1))
+goal reachable: end(SessionB(k_1,pk(skB_1),k_1))
+Abbreviations:
+skB_1 = skB[!1 = @sid]
+Na_1 = Na[pkxB = pk(skB_1),!2 = @sid_1,!1 = @sid_2]
+skA_1 = skA[!1 = @sid_2]
+Nb_1 = Nb[m_1 = encrypt((Na_1,pk(skA_1)),pk(skB_1)),!2 = @sid_3,!1 = @sid]
+k_1 = k[m = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)),pkxB = pk(skB_1),!2 = @sid_1,!1 = @sid_2]
+
+Derivation:
+Abbreviations:
+skB_1 = skB[!1 = @sid]
+Na_1 = Na[pkxB = pk(skB_1),!2 = @sid_1,!1 = @sid_2]
+skA_1 = skA[!1 = @sid_2]
+Nb_1 = Nb[m_1 = encrypt((Na_1,pk(skA_1)),pk(skB_1)),!2 = @sid_3,!1 = @sid]
+k_1 = k[m = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)),pkxB = pk(skB_1),!2 = @sid_1,!1 = @sid_2]
+
+1. The message pk(skB_1) may be sent to the attacker at output {23}.
+attacker(pk(skB_1)).
+
+2. The message pk(skB_1) that the attacker may have by 1 may be received at input {7}.
+So the message encrypt((Na_1,pk(skA_1)),pk(skB_1)) may be sent to the attacker at output {10}.
+attacker(encrypt((Na_1,pk(skA_1)),pk(skB_1))).
+
+3. The message encrypt((Na_1,pk(skA_1)),pk(skB_1)) that the attacker may have by 2 may be received at input {29}.
+So the message encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) may be sent to the attacker at output {34}.
+attacker(encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))).
+
+4. The message pk(skB_1) that the attacker may have by 1 may be received at input {7}.
+The message encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) that the attacker may have by 3 may be received at input {11}.
+So the message encrypt((Nb_1,k_1),pk(skB_1)) may be sent to the attacker at output {16}.
+attacker(encrypt((Nb_1,k_1),pk(skB_1))).
+
+5. The attacker has some term m3_1.
+attacker(m3_1).
+
+6. The message encrypt((Nb_1,k_1),pk(skB_1)) that the attacker may have by 4 may be received at input {29}.
+The message m3_1 that the attacker may have by 5 may be received at input {35}.
+So event SessionB(k_1,pk(skB_1),k_1) may be executed at {37}.
+end(SessionB(k_1,pk(skB_1),k_1)).
+
+7. By 6, end(SessionB(k_1,pk(skB_1),k_1)).
+The goal is reached, represented in the following fact:
+end(SessionB(k_1,pk(skB_1),k_1)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new skB: skey creating skB_1 at {19} in copy a
+
+new skC: skey creating skC_1 at {20} in copy a
+
+out(c, ~M) with ~M = pk(skB_1) at {23} in copy a
+
+out(c, ~M_1) with ~M_1 = pk(skC_1) at {24} in copy a
+
+event HonestB(pk(skB_1)) at {26} in copy a
+
+new skA: skey creating skA_1 at {2} in copy a_1
+
+event HonestA(pk(skA_1)) at {3} in copy a_1
+
+out(c, ~M_2) with ~M_2 = pk(skA_1) at {5} in copy a_1
+
+in(c, ~M) with ~M = pk(skB_1) at {7} in copy a_1, a_2
+
+new Na: nonce creating Na_1 at {8} in copy a_1, a_2
+
+event OUT_I_1(encrypt((Na_1,pk(skA_1)),pk(skB_1))) at {9} in copy a_1, a_2
+
+out(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {10} in copy a_1, a_2
+
+in(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {29} in copy a, a_3
+
+event IN_R_1_ni(Na_1,encrypt((Na_1,pk(skA_1)),pk(skB_1))) at {31} in copy a, a_3
+
+new Nb: nonce creating Nb_1 at {32} in copy a, a_3
+
+event OUT_R_1(encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))) at {33} in copy a, a_3
+
+out(c, ~M_4) with ~M_4 = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) at {34} in copy a, a_3
+
+in(c, ~M_4) with ~M_4 = encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1)) at {11} in copy a_1, a_2
+
+event IN_I_2_nr(Nb_1,encrypt((Na_1,Nb_1,pk(skB_1)),pk(skA_1))) at {13} in copy a_1, a_2
+
+new k: nonce creating k_1 at {14} in copy a_1, a_2
+
+event k_contains(k_1) at {15} in copy a_1, a_2
+
+out(c, ~M_5) with ~M_5 = encrypt((Nb_1,k_1),pk(skB_1)) at {16} in copy a_1, a_2
+
+event SessionA(pk(skA_1),pk(skB_1),k_1) at {17} in copy a_1, a_2
+
+in(c, ~M_5) with ~M_5 = encrypt((Nb_1,k_1),pk(skB_1)) at {29} in copy a, a_4
+
+event IN_R_1_ni(Nb_1,encrypt((Nb_1,k_1),pk(skB_1))) at {31} in copy a, a_4
+
+new Nb: nonce creating Nb_2 at {32} in copy a, a_4
+
+event OUT_R_1(encrypt((Nb_1,Nb_2,pk(skB_1)),k_1)) at {33} in copy a, a_4
+
+out(c, ~M_6) with ~M_6 = encrypt((Nb_1,Nb_2,pk(skB_1)),k_1) at {34} in copy a, a_4
+
+in(c, a_5) at {35} in copy a, a_4
+
+event SessionB(k_1,pk(skB_1),k_1) at {37} in copy a, a_4 (goal)
+
+The event SessionB(k_1,pk(skB_1),k_1) is executed at {37} in copy a, a_4.
+A trace has been found.
+RESULT not event(SessionB(pkxA_1,pkxB_2,xk_1)) is false.
+-- Query event(SessionA(pkA_1,pkxB_2,k_1)) ==> attacker(k_1) in process 1.
+nounif mess(c[],pkxB_2)/-5000
+Completing...
+ok, secrecy assumption verified: fact unreachable attacker(skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skC[!1 = v])
+Starting query event(SessionA(pkA_1,pkxB_2,k_1)) ==> attacker(k_1)
+Inside query: trying to prove attacker(k[m = encrypt((Na[pkxB = pk(y),!2 = @sid,!1 = @sid_1],NX2_1,pk(y)),pk(skA[!1 = @sid_1])),pkxB = pk(y),!2 = @sid,!1 = @sid_1]) from attacker(NX2_1) && attacker(y)
+Completing...
+ok, secrecy assumption verified: fact unreachable attacker(skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skC[!1 = v])
+Inside query: proof failed
+goal reachable: attacker(NX2_1) && attacker(y) -> end(SessionA(pk(skA_1),pk(y),k_1))
+Abbreviations:
+skA_1 = skA[!1 = @sid_1]
+Na_1 = Na[pkxB = pk(y),!2 = @sid,!1 = @sid_1]
+k_1 = k[m = encrypt((Na_1,NX2_1,pk(y)),pk(skA_1)),pkxB = pk(y),!2 = @sid,!1 = @sid_1]
+
+Derivation:
+Abbreviations:
+skA_1 = skA[!1 = @sid_2]
+Na_1 = Na[pkxB = pk(y_1),!2 = @sid_3,!1 = @sid_2]
+k_1 = k[m = encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)),pkxB = pk(y_1),!2 = @sid_3,!1 = @sid_2]
+
+1. We assume as hypothesis that
+attacker(y_1).
+
+2. By 1, the attacker may know y_1.
+Using the function pk the attacker may obtain pk(y_1).
+attacker(pk(y_1)).
+
+3. The attacker initially knows c[].
+attacker(c[]).
+
+4. By 3, the attacker may have the channel c[].
+By 2, the attacker may have the message pk(y_1).
+So the attacker may send this message on this channel.
+mess(c[],pk(y_1)).
+
+5. The message pk(skA_1) may be sent on channel c[] at output {5}.
+mess(c[],pk(skA_1)).
+
+6. By 3, the attacker may have the channel c[].
+By 5, the message pk(skA_1) may be sent on this channel.
+So the attacker may obtain the message pk(skA_1) by listening on this channel.
+attacker(pk(skA_1)).
+
+7. We assume as hypothesis that
+attacker(NX2_2).
+
+8. The message pk(y_1) that may be sent on channel c[] by 4 may be received at input {7}.
+So the message encrypt((Na_1,pk(skA_1)),pk(y_1)) may be sent on channel c[] at output {10}.
+mess(c[],encrypt((Na_1,pk(skA_1)),pk(y_1))).
+
+9. By 3, the attacker may have the channel c[].
+By 8, the message encrypt((Na_1,pk(skA_1)),pk(y_1)) may be sent on this channel.
+So the attacker may obtain the message encrypt((Na_1,pk(skA_1)),pk(y_1)) by listening on this channel.
+attacker(encrypt((Na_1,pk(skA_1)),pk(y_1))).
+
+10. By 9, the attacker may know encrypt((Na_1,pk(skA_1)),pk(y_1)).
+By 1, the attacker may know y_1.
+Using the function decrypt the attacker may obtain (Na_1,pk(skA_1)).
+attacker((Na_1,pk(skA_1))).
+
+11. By 10, the attacker may know (Na_1,pk(skA_1)).
+Using the function 1-proj-2-tuple the attacker may obtain Na_1.
+attacker(Na_1).
+
+12. By 11, the attacker may know Na_1.
+By 7, the attacker may know NX2_2.
+By 2, the attacker may know pk(y_1).
+Using the function 3-tuple the attacker may obtain (Na_1,NX2_2,pk(y_1)).
+attacker((Na_1,NX2_2,pk(y_1))).
+
+13. By 12, the attacker may know (Na_1,NX2_2,pk(y_1)).
+By 6, the attacker may know pk(skA_1).
+Using the function encrypt the attacker may obtain encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)).
+attacker(encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1))).
+
+14. By 3, the attacker may have the channel c[].
+By 13, the attacker may have the message encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)).
+So the attacker may send this message on this channel.
+mess(c[],encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1))).
+
+15. The message pk(y_1) that may be sent on channel c[] by 4 may be received at input {7}.
+The message encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)) that may be sent on channel c[] by 14 may be received at input {11}.
+So event SessionA(pk(skA_1),pk(y_1),k_1) may be executed at {17}.
+end(SessionA(pk(skA_1),pk(y_1),k_1)).
+
+16. By 15, end(SessionA(pk(skA_1),pk(y_1),k_1)).
+The goal is reached, represented in the following fact:
+end(SessionA(pk(skA_1),pk(y_1),k_1)).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new skA: skey creating skA_1 at {2} in copy a
+
+event HonestA(pk(skA_1)) at {3} in copy a
+
+out(c, ~M) with ~M = pk(skA_1) at {5} in copy a
+
+in(c, pk(a_1)) at {7} in copy a, a_2
+
+new Na: nonce creating Na_1 at {8} in copy a, a_2
+
+event OUT_I_1(encrypt((Na_1,pk(skA_1)),pk(a_1))) at {9} in copy a, a_2
+
+out(c, ~M_1) with ~M_1 = encrypt((Na_1,pk(skA_1)),pk(a_1)) at {10} in copy a, a_2
+
+in(c, encrypt((1-proj-2-tuple(decrypt(~M_1,a_1)),a_3,pk(a_1)),~M)) with encrypt((1-proj-2-tuple(decrypt(~M_1,a_1)),a_3,pk(a_1)),~M) = encrypt((Na_1,a_3,pk(a_1)),pk(skA_1)) at {11} in copy a, a_2
+
+event IN_I_2_nr(a_3,encrypt((Na_1,a_3,pk(a_1)),pk(skA_1))) at {13} in copy a, a_2
+
+new k: nonce creating k_1 at {14} in copy a, a_2
+
+event k_contains(k_1) at {15} in copy a, a_2
+
+out(c, ~M_2) with ~M_2 = encrypt((a_3,k_1),pk(a_1)) at {16} in copy a, a_2
+
+event SessionA(pk(skA_1),pk(a_1),k_1) at {17} in copy a, a_2 (goal)
+
+The event SessionA(pk(skA_1),pk(a_1),k_1) is executed at {17} in copy a, a_2.
+A trace has been found.
+I could not confirm that the previous trace falsifies the query.
+RESULT event(SessionA(pkA_1,pkxB_2,k_1)) ==> attacker(k_1) cannot be proved.
+-- Query secret k encoded as not (event(k_contains(v)) && attacker(v)) in process 1.
+Completing...
+ok, secrecy assumption verified: fact unreachable attacker(skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker(skC[!1 = v])
+Starting query secret k
+goal reachable: attacker(NX2_2) && attacker(y_1) -> end(k_contains(k_1)) && attacker(k_1)
+Abbreviations:
+Na_1 = Na[pkxB = pk(y_1),!2 = @sid_2,!1 = @sid_3]
+skA_1 = skA[!1 = @sid_3]
+k_1 = k[m = encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)),pkxB = pk(y_1),!2 = @sid_2,!1 = @sid_3]
+
+Derivation:
+Abbreviations:
+Na_1 = Na[pkxB = pk(y_1),!2 = @sid_2,!1 = @sid_3]
+skA_1 = skA[!1 = @sid_3]
+k_1 = k[m = encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)),pkxB = pk(y_1),!2 = @sid_2,!1 = @sid_3]
+
+1. We assume as hypothesis that
+attacker(y_1).
+
+2. By 1, the attacker may know y_1.
+Using the function pk the attacker may obtain pk(y_1).
+attacker(pk(y_1)).
+
+3. The message pk(skA_1) may be sent to the attacker at output {5}.
+attacker(pk(skA_1)).
+
+4. We assume as hypothesis that
+attacker(NX2_2).
+
+5. The message pk(y_1) that the attacker may have by 2 may be received at input {7}.
+So the message encrypt((Na_1,pk(skA_1)),pk(y_1)) may be sent to the attacker at output {10}.
+attacker(encrypt((Na_1,pk(skA_1)),pk(y_1))).
+
+6. By 5, the attacker may know encrypt((Na_1,pk(skA_1)),pk(y_1)).
+By 1, the attacker may know y_1.
+Using the function decrypt the attacker may obtain (Na_1,pk(skA_1)).
+attacker((Na_1,pk(skA_1))).
+
+7. By 6, the attacker may know (Na_1,pk(skA_1)).
+Using the function 1-proj-2-tuple the attacker may obtain Na_1.
+attacker(Na_1).
+
+8. By 7, the attacker may know Na_1.
+By 4, the attacker may know NX2_2.
+By 2, the attacker may know pk(y_1).
+Using the function 3-tuple the attacker may obtain (Na_1,NX2_2,pk(y_1)).
+attacker((Na_1,NX2_2,pk(y_1))).
+
+9. By 8, the attacker may know (Na_1,NX2_2,pk(y_1)).
+By 3, the attacker may know pk(skA_1).
+Using the function encrypt the attacker may obtain encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)).
+attacker(encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1))).
+
+10. The message pk(y_1) that the attacker may have by 2 may be received at input {7}.
+The message encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)) that the attacker may have by 9 may be received at input {11}.
+So the message encrypt((NX2_2,k_1),pk(y_1)) may be sent to the attacker at output {16}.
+attacker(encrypt((NX2_2,k_1),pk(y_1))).
+
+11. By 10, the attacker may know encrypt((NX2_2,k_1),pk(y_1)).
+By 1, the attacker may know y_1.
+Using the function decrypt the attacker may obtain (NX2_2,k_1).
+attacker((NX2_2,k_1)).
+
+12. By 11, the attacker may know (NX2_2,k_1).
+Using the function 2-proj-2-tuple the attacker may obtain k_1.
+attacker(k_1).
+
+13. The message pk(y_1) that the attacker may have by 2 may be received at input {7}.
+The message encrypt((Na_1,NX2_2,pk(y_1)),pk(skA_1)) that the attacker may have by 9 may be received at input {11}.
+So event k_contains(k_1) may be executed at {15}.
+end(k_contains(k_1)).
+
+14. By 13, end(k_contains(k_1)).
+By 12, attacker(k_1).
+The goals are reached, combined in the following fact:
+end(k_contains(k_1)) && attacker(k_1).
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new skA: skey creating skA_1 at {2} in copy a
+
+event HonestA(pk(skA_1)) at {3} in copy a
+
+out(c, ~M) with ~M = pk(skA_1) at {5} in copy a
+
+in(c, pk(a_1)) at {7} in copy a, a_2
+
+new Na: nonce creating Na_1 at {8} in copy a, a_2
+
+event OUT_I_1(encrypt((Na_1,pk(skA_1)),pk(a_1))) at {9} in copy a, a_2
+
+out(c, ~M_1) with ~M_1 = encrypt((Na_1,pk(skA_1)),pk(a_1)) at {10} in copy a, a_2
+
+in(c, encrypt((1-proj-2-tuple(decrypt(~M_1,a_1)),a_3,pk(a_1)),~M)) with encrypt((1-proj-2-tuple(decrypt(~M_1,a_1)),a_3,pk(a_1)),~M) = encrypt((Na_1,a_3,pk(a_1)),pk(skA_1)) at {11} in copy a, a_2
+
+event IN_I_2_nr(a_3,encrypt((Na_1,a_3,pk(a_1)),pk(skA_1))) at {13} in copy a, a_2
+
+new k: nonce creating k_1 at {14} in copy a, a_2
+
+event k_contains(k_1) at {15} in copy a, a_2 (goal)
+
+out(c, ~M_2) with ~M_2 = encrypt((a_3,k_1),pk(a_1)) at {16} in copy a, a_2
+
+event SessionA(pk(skA_1),pk(a_1),k_1) at {17} in copy a, a_2
+
+The event k_contains(k_1) is executed at {15} in copy a, a_2.
+The attacker has the message 2-proj-2-tuple(decrypt(~M_2,a_1)) = k_1.
+A trace has been found.
+RESULT secret k is false.
+
+--------------------------------------------------------------
+Verification summary:
+
+Query not event(SessionA(pkA_1,pkxB_2,k_1)) is false.
+
+Query not event(SessionB(pkxA_1,pkxB_2,xk_1)) is false.
+
+Query event(SessionA(pkA_1,pkxB_2,k_1)) ==> attacker(k_1) cannot be proved.
+
+Query secret k is false.
+
+--------------------------------------------------------------
+
+
+
+*)

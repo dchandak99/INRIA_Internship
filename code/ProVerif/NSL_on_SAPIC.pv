@@ -1,0 +1,215 @@
+(* 
+A -> B : { N_A, pkA }_pkB
+B -> A : { N_A, N_B, pkB }_pkA
+A -> B : { N_B }_pkB
+*)
+
+free c: channel.
+
+type nonce.
+type pkey.
+type skey.
+
+fun nonce_to_bitstring(nonce): bitstring [data,typeConverter].
+
+(* Public key encryption *)
+
+fun pk(skey): pkey.
+fun encrypt(bitstring, pkey): bitstring.
+reduc forall x: bitstring, y: skey; decrypt(encrypt(x,pk(y)),y) = x.
+
+(* Secrecy assumptions *)
+
+not attacker(new skA).
+not attacker(new skB).
+not attacker(new skC).
+not attacker(new k).
+
+event HonestA(pkey).
+event HonestB(pkey).
+event OUT_I_1(bitstring).
+event OUT_R_1(bitstring).
+event IN_I_2_nr(nonce, bitstring).
+event IN_R_1_ni(nonce, bitstring).
+event SessionA(pkey, pkey, nonce).
+event SessionB(pkey, pkey, nonce).
+
+(* Queries *)
+(* query pkA: pkey, pkxB:pkey, k:nonce ; event(SessionA(pkA, pkxB, k)).
+query pkxA: pkey, pkxB:pkey, xk:nonce ; event(SessionB(pkxA, pkxB, xk)).
+query pkA: pkey, pkxB:pkey, k:nonce; event(SessionA(pkA, pkxB, k)) ==> attacker(k).
+*)
+
+let processInitiator() =
+        
+	new skA: skey; 
+	event HonestA(pk(skA));
+	let pkA = pk(skA) in
+        out(c, pkA);
+	!(in(c, (pkxB: pkey));
+	
+	new Na: nonce; 
+	event OUT_I_1(encrypt((Na, pk(skA)), pkxB));
+        out(c, encrypt((Na, pk(skA)), pkxB));
+        
+        in(c, m: bitstring); 
+        let (=Na, NX2: nonce, =pkxB) = decrypt(m, skA) in
+		event IN_I_2_nr(NX2, m);
+	new k: nonce;
+	
+        out(c, encrypt((nonce_to_bitstring(NX2), nonce_to_bitstring(k)), pkxB));
+		event SessionA(pkA, pkxB, k)).
+   
+let processResponder() =
+       
+	new skB: skey; 
+	new skC: skey; 
+	let pkB = pk(skB) in
+	let pkC = pk(skC) in
+        out(c, pkB);
+	out(c, pkC);
+	let aa = choice [skB, skC] in 
+	event HonestB(pk(aa));
+	let pkxB = pk(aa) in
+
+	!(in(c, m: bitstring);
+
+	let (NY: nonce, pkxA: pkey) = decrypt(m, aa) in
+	event IN_R_1_ni(NY, m);
+        
+    new Nb: nonce;
+	event OUT_R_1(encrypt((NY, Nb, pkxB), pkxA));
+	out(c, encrypt((NY, Nb, pkxB), pkxA));
+
+	in(c, m3: bitstring);
+	let (NX: nonce, xk: nonce) = decrypt(m, aa) in
+	event SessionB(pkxA, pkxB, xk)).
+
+
+(* Start process *)
+
+process ((!processInitiator()) | (!processResponder()))
+
+(* Output:-
+
+Biprocess 0 (that is, the initial process):
+(
+    {1}!
+    {2}new skA: skey;
+    {3}event HonestA(pk(skA));
+    {4}let pkA: pkey = pk(skA) in
+    {5}out(c, pkA);
+    {6}!
+    {7}in(c, pkxB: pkey);
+    {8}new Na: nonce;
+    {9}event OUT_I_1(encrypt((Na,pk(skA)),pkxB));
+    {10}out(c, encrypt((Na,pk(skA)),pkxB));
+    {11}in(c, m: bitstring);
+    {12}let (=Na,NX2: nonce,=pkxB) = decrypt(m,skA) in
+    {13}event IN_I_2_nr(NX2,m);
+    {14}new k: nonce;
+    {15}out(c, encrypt((NX2,k),pkxB));
+    {16}event SessionA(pkA,pkxB,k)
+) | (
+    {17}!
+    {18}new skB: skey;
+    {19}new skC: skey;
+    {20}let pkB: pkey = pk(skB) in
+    {21}let pkC: pkey = pk(skC) in
+    {22}out(c, pkB);
+    {23}out(c, pkC);
+    {24}let aa: skey = choice[skB,skC] in
+    {25}event HonestB(pk(aa));
+    {26}let pkxB_1: pkey = pk(aa) in
+    {27}!
+    {28}in(c, m_1: bitstring);
+    {29}let (NY: nonce,pkxA: pkey) = decrypt(m_1,aa) in
+    {30}event IN_R_1_ni(NY,m_1);
+    {31}new Nb: nonce;
+    {32}event OUT_R_1(encrypt((NY,Nb,pkxB_1),pkxA));
+    {33}out(c, encrypt((NY,Nb,pkxB_1),pkxA));
+    {34}in(c, m3: bitstring);
+    {35}let (NX: nonce,xk: nonce) = decrypt(m_1,aa) in
+    {36}event SessionB(pkxA,pkxB_1,xk)
+)
+
+-- Observational equivalence in biprocess 0.
+Termination warning: v ≠ v_1 && attacker2(v_2,v) && attacker2(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker2(v,v_2) && attacker2(v_1,v_2) -> bad
+Selecting 0
+Completing...
+Termination warning: v ≠ v_1 && attacker2(v_2,v) && attacker2(v_2,v_1) -> bad
+Selecting 0
+Termination warning: v ≠ v_1 && attacker2(v,v_2) && attacker2(v_1,v_2) -> bad
+Selecting 0
+ok, secrecy assumption verified: fact unreachable attacker2(skA[!1 = v],skA[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker2(skB[!1 = v],skB[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker2(skC[!1 = v],skC[!1 = v])
+ok, secrecy assumption verified: fact unreachable attacker2(k[m = choice[v,v],pkxB = choice[v_1,v_1],!2 = v_2,!1 = v_3],k[m = choice[v,v],pkxB = choice[v_1,v_1],!2 = v_2,!1 = v_3])
+goal reachable: bad
+
+Derivation:
+Abbreviations:
+skB_1 = skB[!1 = @sid]
+Na_1 = Na[pkxB = choice[pk(skB_1),pk(skB_1)],!2 = @sid_1,!1 = @sid_2]
+skA_1 = skA[!1 = @sid_2]
+skC_1 = skC[!1 = @sid]
+
+1. The message pk(skB_1) (resp. pk(skB_1)) may be sent to the attacker at output {22}.
+attacker2(pk(skB_1),pk(skB_1)).
+
+2. The message pk(skB_1) (resp. pk(skB_1)) that the attacker may have by 1 may be received at input {7}.
+So the message encrypt((Na_1,pk(skA_1)),pk(skB_1)) (resp. encrypt((Na_1,pk(skA_1)),pk(skB_1))) may be sent to the attacker at output {10}.
+attacker2(encrypt((Na_1,pk(skA_1)),pk(skB_1)),encrypt((Na_1,pk(skA_1)),pk(skB_1))).
+
+3. The message encrypt((Na_1,pk(skA_1)),pk(skB_1)) (resp. encrypt((Na_1,pk(skA_1)),pk(skB_1))) that the attacker may have by 2 may be received at input {28}.
+We have (forall @gen, encrypt((Na_1,pk(skA_1)),pk(skB_1)) ≠ encrypt(@gen,pk(skC_1))).
+So the attacker can make a distinguishing test at {29}.
+bad.
+
+
+A more detailed output of the traces is available with
+  set traceDisplay = long.
+
+new skB: skey creating skB_1 at {18} in copy a
+
+new skC: skey creating skC_1 at {19} in copy a
+
+out(c, ~M) with ~M = pk(skB_1) at {22} in copy a
+
+out(c, ~M_1) with ~M_1 = pk(skC_1) at {23} in copy a
+
+event HonestB(pk(choice[skB_1,skC_1])) at {25} in copy a
+
+new skA: skey creating skA_1 at {2} in copy a_1
+
+event HonestA(pk(skA_1)) at {3} in copy a_1
+
+out(c, ~M_2) with ~M_2 = pk(skA_1) at {5} in copy a_1
+
+in(c, ~M) with ~M = pk(skB_1) at {7} in copy a_1, a_2
+
+new Na: nonce creating Na_1 at {8} in copy a_1, a_2
+
+event OUT_I_1(encrypt((Na_1,pk(skA_1)),pk(skB_1))) at {9} in copy a_1, a_2
+
+out(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {10} in copy a_1, a_2
+
+in(c, ~M_3) with ~M_3 = encrypt((Na_1,pk(skA_1)),pk(skB_1)) at {28} in copy a, a_3
+
+A process performs a test that may succeed on one side and not on the other at {29} in copy a, a_3.
+A trace has been found.
+RESULT Observational equivalence cannot be proved.
+Looking for simplified processes ...
+No simplified process found.
+
+--------------------------------------------------------------
+Verification summary:
+
+Observational equivalence cannot be proved.
+
+--------------------------------------------------------------
+
+
+*)

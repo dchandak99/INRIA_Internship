@@ -1,0 +1,114 @@
+theory Toy_diff
+begin
+
+builtins: hashing, asymmetric-encryption
+//equations: radec(raenc(m,r,pk(sk)),sk) = m 
+
+// Registering a public key
+rule Register_pk:
+  [ Fr(~ltk) ]
+  -->
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+
+rule Get_pk:
+  [ !Pk(A, pubkey) ]
+  --[Get_(A)]->
+  [ Out(pubkey) ]
+
+rule Reveal_ltk:
+    [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+    [ Out(ltk) ]
+
+rule Client_init:
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)
+    , Fr(~r2)   // lookup public-key 
+    ]
+  -->
+    [ Client_init( $S, ~k )    
+    , Out( aenc(<~k, ~r2>, pkS ) ) 
+    ]
+
+rule Client_rec:
+    [ Client_init(S, k)   // Retrieve server and session key 
+    , In( h(<k, r2>) )       
+    ]
+  --[ Record_sess( S, k ) ]-> 
+    [ Record_sess1( S, k )]                     
+
+rule Serv_1:
+    [ !Ltk($S, ~ltkS)                          // lookup the private-key
+    , In( request )                            // receive a request
+    ]
+  --[ Ans_req($S, fst(adec(request, ~ltkS)))  
+    ]->
+    [ Out( h(adec(request, ~ltkS))) ]   
+                                               
+rule chall:
+  [ Record_sess1(S,k)
+  , Fr(~r)
+  ]
+--[ Challe(S, k, ~r)]->
+  [ Out(diff(k, ~r))]
+
+restriction Out__:
+"   All S k r #i.
+    Challe(S, k, r) @ #i
+    ==> not(Ex #j. LtkReveal(S) @ j & j<i)
+"
+/*
+restriction Out__1:
+"   All S k r #i.
+    Challe(S, k, r) @ #i
+    ==> not(Ex #j. Client_init(S, k) @ j & i<j )
+"*/
+
+lemma Client_session_key_secrecy:
+  " 
+    not(
+      Ex S k ran #i #j #m.
+        /* client has set up a session key 'k' with a server'S' */
+        Record_sess(S, k) @ #i
+        /* and the adversary knows 'k' */
+      & K(k) @ #j
+      & Challe(S, k, ran) @ #m
+      & j<m
+      & not(Ex #r. LtkReveal(S) @ r)
+    )
+  "
+
+
+lemma Client_auth:
+  " 
+    ( All S k #i.  Record_sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a)
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_auth_injective:
+  "
+    ( All S k #i.  Record_sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a
+           /* and there is no other client that had the same request */
+           & (All #j. Record_sess(S, k) @ #j ==> #i = #j)
+       )
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_session_key_honest_setup:
+  exists-trace
+  " Ex S k #i.
+        Record_sess(S, k) @ #i
+      & not(Ex #r. LtkReveal(S) @ r)
+  "
+
+end

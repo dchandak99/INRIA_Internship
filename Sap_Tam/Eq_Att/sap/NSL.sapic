@@ -1,0 +1,80 @@
+theory NSL
+
+begin
+
+builtins: asymmetric-encryption
+functions: penc/3, pdec/2
+equations: pdec(penc(m, r, pk(skk)), skk) = m
+
+new skA; new skB; new Nb; new r; new k;
+// if not declared here, the attacker can choose all 3 since he knows Na pks
+   ( in(Na_1); in(Na_2); 
+    (   event HonestA(pk(skA));
+        out(pk(skA));         //diff(Na_1, Na_2) is like variable to A but actual value Na
+        (   //new Na; 
+       // new r;
+        event OUT_I_1(penc(<diff(Na_1, Na_2), pk(skA)>,r, pk(skB)));
+        out(penc(<diff(Na_1, Na_2), pk(skA)>,r,pk(skB)));
+        in(aenc(<diff(Na_1, Na_2), Nb,pk(skB)>,pk(skA)));  //attacker can do this
+        event IN_I_2_nr(Nb,aenc(<diff(Na_1, Na_2),Nb,pk(skB)>,pk(skA)));
+        //new k; 
+        out(aenc(<Nb,k>,pk(skB))); 
+        event SessionA(pk(skA),pk(skB),k)
+        )) 
+||     (  event HonestB(pk(skB));
+          out(pk(skB));
+         ( in(penc(<diff(Na_1, Na_2),pk(skA)>,r,pk(skB))); 
+           event IN_R_1_ni(diff(Na_1, Na_2),penc(<diff(Na_1, Na_2),pk(skA)>,r,pk(skB)));
+          // new Nb; 
+           event OUT_R_1(aenc(<diff(Na_1, Na_2),Nb,pk(skB)>,pk(skA)));
+           out(aenc(<diff(Na_1, Na_2),Nb,pk(skB)>,pk(skA)));
+           in(aenc(<Nb,k>,pk(skB))); 
+           event SessionB(pk(skA),pk(skB),k)
+        )))
+
+lemma sanity1: //make sure that a valid protocol run exists 
+ exists-trace 
+      "Ex pka pkb k #t1 . SessionA(pka,pkb,k)@t1" 
+
+lemma sanity2:  
+ exists-trace 
+      "Ex pka pkb k #t1 . SessionB(pka,pkb,k)@t1" 
+/*
+lemma source [sources, reuse]:
+  " (All ni m1 #i.
+       IN_R_1_ni( ni, m1) @ i
+       ==>
+       ( (Ex #j. KU(ni) @ j & j < i)
+     //  | (Ex #j. OUT_I_1( m1 ) @ j)
+       )
+    )
+  & (All n1 n2 #i.
+    Got(n1, n2) @i 
+    ==>
+     (Ex #j. KU(n1) @ j & j < i)
+    )
+  & (All n1 n2 #i.
+    Got(n1, n2) @i 
+    ==>
+     (Ex #j. KU(n2) @ j & j < i)
+    )
+
+  & (All nr m2 #i.
+       IN_I_2_nr( nr, m2) @ i
+       ==>
+       ( (Ex #j. KU(nr) @ j & j < i)
+       | (Ex #j. OUT_R_1( m2 ) @ j)
+       )
+    )
+"*/
+
+lemma secrecy:
+        "not (
+                Ex pka pkb k #t1 #t2 .
+                 SessionA(pka,pkb,k)@t1            /* somebody claims to have setup a shared secret, */
+                & K(k)@t2                          /* but the adversary knows it */
+                & ( Ex #i . HonestA(pka)@i)        /* without having performed a long-term key reveal. */
+                & ( Ex #i . HonestB(pkb)@i)
+        )"
+
+end

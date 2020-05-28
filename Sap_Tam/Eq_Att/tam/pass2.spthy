@@ -1,0 +1,71 @@
+theory pass2
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+builtins: asymmetric-encryption, symmetric-encryption, xor
+
+functions: f1/4, f2/4, f3/4, g/4, A/0, B/0
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule new_pwA_: // [process=top-level] new pwA 
+ [State_(), Fr(pwA)] --[]-> [State_1(pwA)]
+
+rule new_pwB_1: // [process=top-level] new pwB 
+ [State_1(pwA), Fr(pwB)] --[]-> [State_11(pwA, pwB)]
+
+rule new_pfresh1_11: // [process=top-level] new pfresh1 
+ [State_11(pwA, pwB), Fr(pfresh1)] --[]-> [State_111(pfresh1, pwA, pwB)]
+
+rule new_pfresh2_111: // [process=top-level] new pfresh2 
+ [State_111(pfresh1, pwA, pwB), Fr(pfresh2)] --[]-> [State_1111(pfresh1, pfresh2, pwA, pwB)]
+
+rule new_nA_1111: // [process=top-level] new nA 
+ [State_1111(pfresh1, pfresh2, pwA, pwB), Fr(nA)] --[]-> [State_11111(nA, pfresh1, pfresh2, pwA, pwB)]
+
+rule new_nB_11111: // [process=top-level] new nB 
+ [State_11111(nA, pfresh1, pfresh2, pwA, pwB), Fr(nB)] --[]-> [State_111111(nA, nB, pfresh1, pfresh2, pwA, pwB)]
+
+rule new_nS_111111: // [process=top-level] new nS 
+ [State_111111(nA, nB, pfresh1, pfresh2, pwA, pwB), Fr(nS)] --[]-> [State_1111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB)]
+
+rule out_nA_1111111 [color=#569DC0]: // [process=P] out nA 
+ [State_1111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_11111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(nA)]
+
+rule out_nB_11111111 [color=#569DC0]: // [process=P] out nB 
+ [State_11111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_111111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(nB)]
+
+rule out_nS_111111111 [color=#569DC0]: // [process=P] out nS 
+ [State_111111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_1111111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(nS)]
+
+rule out_f1nS_nB_A_pwB_XOR_f1nS_nA_B_pwA_1111111111 [color=#569DC0]: // [process=P] out f1(nS, nB, A, pwB) XOR f1(nS, nA, B, pwA) 
+ [State_1111111111(nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_11111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(f1(nS, nB, A, pwB) XOR f1(nS, nA, B, pwA))]
+
+rule out_f2nS_nB_A_pwB_XOR_f2nS_nA_B_pwA_11111111111 [color=#569DC0]: // [process=P] out f2(nS, nB, A, pwB) XOR f2(nS, nA, B, pwA) 
+ [State_11111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(f2(nS, nB, A, pwB) XOR f2(nS, nA, B, pwA))]
+
+rule out_f3nS_nB_A_pwB_XOR_f3nS_nA_B_pwA_111111111111 [color=#569DC0]: // [process=P] out f3(nS, nB, A, pwB) XOR f3(nS, nA, B, pwA) 
+ [State_111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_1111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(f3(nS, nB, A, pwB) XOR f3(nS, nA, B, pwA))]
+
+rule out_gf1nS_nA_B_pwA_f2nS_nA_B_pwA_f3nS_nA_B_pwA_pwB_1111111111111 [color=#569DC0]: // [process=P] out g(f1(nS, nA, B, pwA), f2(nS, nA, B, pwA), f3(nS, nA, B, pwA), pwB) 
+ [State_1111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_11111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(g(f1(nS, nA, B, pwA), f2(nS, nA, B, pwA), f3(nS, nA, B, pwA), pwB))]
+
+rule out_f3nS_nA_B_pwA_11111111111111 [color=#569DC0]: // [process=P] out f3(nS, nA, B, pwA) 
+ [State_11111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_111111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(f3(nS, nA, B, pwA))]
+
+rule out_diff_pfresh1_pfresh2_pwA_pwB__111111111111111 [color=#569DC0]: // [process=P] out diff(<pfresh1, pfresh2>, <pwA, pwB>) 
+ [State_111111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> [State_1111111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB), Out(diff(<pfresh1, pfresh2>, <pwA, pwB>))]
+
+rule Zero_1111111111111111 [color=#569DC0]: // [process=P] Zero 
+ [State_1111111111111111(A, B, nA, nB, nS, pfresh1, pfresh2, pwA, pwB)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+end

@@ -1,0 +1,83 @@
+theory DesignChoices
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule Rep_0_: // [process=top-level] Rep, 0 
+ [State_()] --[]-> [!Semistate_1()]
+
+rule Rep_1_: // [process=top-level] Rep, 1 
+ [!Semistate_1()] --[]-> [State_1()]
+
+rule in_a_1: // [process=top-level] in a 
+ [State_1(), In(a)] --[]-> [State_11(a)]
+
+rule in_b_11: // [process=top-level] in b 
+ [State_11(a), In(b)] --[]-> [State_111(a, b)]
+
+rule lock_s__111: // [process=top-level] lock 's' 
+ [State_111(a, b), Fr(~lock6)] --[Lock($6, ~lock6, 's'), Lock_6($6, ~lock6, 's')]-> [State_1111(~lock6, a, b)]
+
+rule lookup_visited_as_v_0_1111: // [process=top-level] lookup 'visited' as v, 0 
+ [State_1111(~lock6, a, b)] --[IsIn('visited', v)]-> [State_11111(~lock6, a, b, v)]
+
+rule lookup_visited_as_v_1_1111: // [process=top-level] lookup 'visited' as v, 1 
+ [State_1111(~lock6, a, b)] --[IsNotSet('visited')]-> [State_11112(~lock6, a, b)]
+
+rule unlock_s__11111: // [process=top-level] unlock 's' 
+ [State_11111(~lock6, a, b, v)] --[Unlock($6, ~lock6, 's'), Unlock_6($6, ~lock6, 's')]-> [State_111111(~lock6, a, b, v)]
+
+rule Zero_111111: // [process=top-level] Zero 
+ [State_111111(~lock6, a, b, v)] --[]-> []
+
+rule event_Visit_11112: // [process=top-level] event Visit() 
+ [State_11112(~lock6, a, b)] --[Event(), Visit()]-> [State_111121(~lock6, a, b)]
+
+rule insert_visited_s__111121: // [process=top-level] insert 'visited','s' 
+ [State_111121(~lock6, a, b)] --[Insert('visited', 's')]-> [State_1111211(~lock6, a, b)]
+
+rule unlock_s__1111211: // [process=top-level] unlock 's' 
+ [State_1111211(~lock6, a, b)] --[Unlock($6, ~lock6, 's'), Unlock_6($6, ~lock6, 's')]-> [State_11112111(~lock6, a, b)]
+
+rule Zero_11112111: // [process=top-level] Zero 
+ [State_11112111(~lock6, a, b)] --[]-> []
+
+ restriction set_in:
+"All x y #t3 . IsIn(x,y)@t3 ==>
+        (Ex #t2 . Insert(x,y)@t2 & #t2<#t3 
+                & ( All #t1 . Delete(x)@t1 ==> (#t1<#t2 |  #t3<#t1))
+                & ( All #t1 yp . Insert(x,yp)@t1 ==> (#t1<#t2 | #t1=#t2 | #t3<#t1))
+)"
+
+restriction set_notin:
+"All x #t3 . IsNotSet(x)@t3 ==> 
+        (All #t1 y . Insert(x,y)@t1 ==>  #t3<#t1 )
+  | ( Ex #t1 .   Delete(x)@t1 & #t1<#t3 
+                &  (All #t2 y . Insert(x,y)@t2 & #t2<#t3 ==>  #t2<#t1))"
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+ 
+ restriction locking_6: 
+ "All p pp l x lp #t1 #t3 . Lock_6(p,l,x)@t1 & Lock(pp,lp,x)@t3 
+         ==> 
+         ( #t1<#t3 
+                  & (Ex #t2. Unlock_6(p,l,x)@t2 & #t1<#t2 & #t2<#t3  
+                  & (All #t0 pp  . Unlock(pp,l,x)@t0 ==> #t0=#t2) 
+                  & (All pp lpp #t0 . Lock(pp,lpp,x)@t0 ==> #t0<#t1 | #t0=#t1 | #t2<#t0) 
+                  & (All pp lpp #t0 . Unlock(pp,lpp,x)@t0 ==> #t0<#t1 | #t2<#t0 | #t2=#t0 ) 
+                 )) 
+         | #t3<#t1 | #t1=#t3 " 
+
+ lemma visit_once :
+"	All #t1 #t2. ( Visit() @ t1 & Visit() @ t2 ) ==> #t1 = #t2"
+
+end

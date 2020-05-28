@@ -1,0 +1,73 @@
+ theory Tutorial
+begin
+
+builtins: hashing, asymmetric-encryption
+
+
+let P_reveal_server=
+  event LtkReveal($S); 
+  out(ltk)
+
+let PQ=
+  new key;
+  event Client_init($S, key);
+  out(aenc(key, pk(ltk)));
+  in(h(key));
+  event Record_Sess($S,key)
+
+
+let R=
+  in(request);
+  event Ans_req($S, adec(request, ltk));
+  out(h(adec(request, ltk)))
+
+
+!( in($S); new ltk; (P_reveal_server || !PQ || !R) ) 
+
+
+lemma Client_session_key_secrecy:
+  " 
+    not(
+      Ex S k #i #j.
+        /* client has set up a session key 'k' with a server'S' */
+        Record_Sess(S, k) @ #i
+        /* and the adversary knows 'k' */
+      & K(k) @ #j
+      & not(Ex #r. LtkReveal(S) @ r)
+    )
+  "
+
+
+lemma Client_auth:
+  " 
+    ( All S k #i.  Record_Sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a)
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_auth_injective:
+  "
+    ( All S k #i.  Record_Sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a
+           /* and there is no other client that had the same request */
+           & (All #j. Record_Sess(S, k) @ #j ==> #i = #j)
+       )
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_session_key_honest_setup:
+  exists-trace
+  " Ex S k #i.
+        Record_Sess(S, k) @ #i
+      & not(Ex #r. LtkReveal(S) @ r)
+  "
+
+end

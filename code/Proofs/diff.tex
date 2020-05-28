@@ -1,0 +1,448 @@
+\documentclass[11pt]{article}
+%\usepackage[utf8]{inputenc}
+
+\usepackage{mathtools}
+\usepackage [english]{babel}
+\usepackage [autostyle, english = american]{csquotes}
+\MakeOuterQuote{"}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage[a4paper, left=2.5cm, right=2.5cm, top=2.5cm, bottom=2.5cm]{geometry}
+\usepackage{calrsfs}
+\DeclareMathAlphabet{\pazocal}{OMS}{zplm}{m}{n}
+\newcommand{\Sa}{\pazocal{S}}
+\newcommand{\Lb}{\pazocal{L}}
+\newcommand{\Ea}{\pazocal{E}}
+\newcommand{\Ta}{\pazocal{T}}
+\newcommand{\Aa}{\pazocal{A}}
+\newcommand{\Xa}{\pazocal{X}}
+\newcommand{\Pa}{\pazocal{P}}
+\newcommand{\Va}{\pazocal{V}}
+\newcommand{\Lc}{\pazocal{l}}
+\newcommand*{\dash}{\ensuremath{\prime}}
+
+\newcommand{\jannik}[1]{\textcolor{red}{#1}}
+
+\title{SAPIC Equivalence}
+%\maketitle
+\begin{document}
+%like\textsubscript{this}
+%(resp.diff(\varphi$\textsubscript{1}, $\varphi$\textsubscript{2})) with %M\textsubscript{1} (resp.\varphi$\textsubscript{1}), 
+
+\section{Biprocess in SAPIC}
+
+Biprocesses are pairs of processes with the same structure, differing only in the {\it terms} they contain.  The syntax remain same with the additional cases diff (M\textsubscript{1}, M\textsubscript{2}) for M\textsubscript{1}, M\textsubscript{2} $\epsilon$ $\Ta$. 
+\newline
+
+We introduce a special symbol {\bf diff} of arity 2 in our signature. The idea being to use this diff operator to indicate when the terms manipulated by the processes are different. Given a {\it biprocess P}, we define {\bf two} processes {\bf fst(P)}and {\bf snd(P)}, as follows: fst(P) is obtained by replacing all occurrences of diff (M\textsubscript{1}, M\textsubscript{2}) with M\textsubscript{1} in P, and snd(P) is obtained by replacing diff (M\textsubscript{1}, M\textsubscript{2}) with M\textsubscript{2} in P. We define fst(M\textsubscript{1}), snd(M\textsubscript{1}) similarly. Also, since diff/2 is added as signature {\it diff(M, N)} is also a term.\newline
+
+We naturally extend fst and snd to multisets of processes, and to configurations \\by fst($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) = ($\Ea$, fst($\Sa$), fst(P), fst($\sigma$), fst($\Lb$)) and snd($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) = ($\Ea$, snd($\Sa$), snd(P), snd($\sigma$), snd($\Lb$)).\newline
+
+{\it Note 1.1}: fst($\sigma$), fst($\Sa$) and fst($\Lb$) are obtained by replacing all occurrences of diff ({\it M}, {\it N}) with {\it M} and similarly {\it N} for snd, where {\it M, N} $\epsilon$ $\Ta$.
+
+%\newline This  notion  is expressive enough to specify many relevant security properties.  These include our desired  real–or–random  test, privacy-related properties of voting and auctions, indistinguishability properties such as ciphertext indistinguishability, and authenticated key-exchange security.
+\vspace{6pt}
+\section{Translation of Biprocesses}
+\vspace{4pt}
+For the purpose of translation of a biprocess B, we assume the diff operator to be a {\it function} of arity 2 (diff/2). Let the old signature be $\Sigma$\textsubscript{1} and new signature be $\Sigma$. Then:
+\begin{center}
+    $\Sigma$ = $\Sigma$\textsubscript{1} $\cup$ \{{\it diff/2}\}  
+\end{center}
+After this assumption, [[B]] is defined as for any other process, with the predefined translation rules.\newline
+
+{\it Remark 2.1: }If B is a biprocess in SAPIC, [[B]] will be a bi-system in Tamarin. Since the only change in the translation is diff which is treated as a function so [[B]] becomes a multiset rewrite system with the diff [. , .] operator, which is nothing but a bi-system. 
+\vspace{5pt}
+\section{Tamarin Equivalent Biprocess}
+{\it Preliminaries: } 
+\begin{itemize}
+    \item {\it IF = IN $\cup$ OUT, Env is the environment}, defined in Section 3 of the paper below.
+    \vspace{-2pt}
+    \item {\it L(S) and R(S)} are left and right instances of S, defined in Section 4.1 of the paper below.
+    \vspace{-2pt}
+    \item Section 4.2 of \href{https://hal.archives-ouvertes.fr/hal-01337409v2/document}{{\it paper}} on Tamarin equivalence.\newline\newline
+\end{itemize}
+\vspace{-1cm}
+\vspace{8pt}
+A biprocess B is said to be {\bf tamarin equivalent} if L([[B]]) and R([[B]]) satisfies {\it dependency graph equivalence}, written L([[B]]) {\it $\sim$\textsubscript{DG,Env}} R([[B]]).\newline
+
+{\bf Definition 3.1: }{\it Consider the multiset rewrite systems L = L([[B]]) $\cup$ IF $\cup$ Env and R = R([[B]]) $\cup$ IF $\cup$ Env. We say  that L and R are  dependency  graph  equivalent, written L([[B]]) {\it $\sim$\textsubscript{DG,Env}} R([[B]]), if for all dependency graphs dg of rules r $\epsilon$ L $\cup$ R, the set mirrors (dg) is non-empty and contains dependency graphs for all possible instantiations of new diff-variables.}
+
+
+\section{Diff Equivalence in SAPIC}
+\vspace{0.2cm}
+
+\subsection{Static Equivalence}
+A {\it frame} consists of a set of fresh names $\tilde{n}$ and a substitution $\sigma$ and is written $\nu$$\tilde{n}$.$\sigma$. Let us represent a frame by $\varphi$. Let {\bf D}($\varphi$) = {\bf D}($\sigma$) where $\varphi$ = $\nu$$\tilde{n}$.$\sigma$.
+\newline\newline
+{\bf Definition 4.1.1: }Given 2 frames $\varphi$\textsubscript{1} = $\nu$$\tilde{n}$\textsubscript{1}.$\sigma$\textsubscript{1} and $\varphi$\textsubscript{2} = $\nu$$\tilde{n}$\textsubscript{2}.$\sigma$\textsubscript{2}, we write $\varphi$\textsubscript{1} =\textsubscript{$\alpha$} $\varphi$\textsubscript{2}, if they are equal upto $\alpha$-conversion of the restricted names.
+\newline 
+
+We say that for {\it M, N} $\epsilon$ $\Ta$, {\it M} =\textsubscript{E} {\it N} holds in a frame, written ({\it M} =\textsubscript{E} {\it N})$\varphi$ if and only if $\exists$ $\tilde{n}$ and $\sigma$ such that the following are satisfied:
+\begin{itemize}
+  \item $\varphi$ =\textsubscript{$\alpha$} $\nu$$\tilde{n}$.$\sigma$ and {\it M}$\sigma$ =\textsubscript{E} {\it N}$\sigma$
+  \item {\it names(M) $\cap$ $\tilde{n}$= $\phi$} and {\it names(N) $\cap$ $\tilde{n}$= $\phi$} 
+  \item {\it vars(M)} $\subseteq$ {\bf D}($\sigma$) and {\it vars(N)} $\subseteq$ {\bf D}($\sigma$)
+\end{itemize}
+%\vspace{1cm}
+
+
+{\bf Static Equivalence: } Two frames $\varphi$\textsubscript{1} and $\varphi$\textsubscript{2} are said to be statically equivalent w.r.t. an equational theory E, denoted as $\varphi$\textsubscript{1} $\sim$\textsubscript{E} $\varphi$\textsubscript{2} if {\bf D}($\varphi$\textsubscript{1}) = {\bf D}($\varphi$\textsubscript{2}) and for any {\it M, N} $\epsilon$ $\Ta$, we have that 
+\begin{center}
+({\it M} =\textsubscript{E} {\it N})$\varphi$\textsubscript{1} if and only if ({\it M} =\textsubscript{E} {\it N})$\varphi$\textsubscript{2}.
+\end{center}
+Intuitively,  this  definition  states  that  the  observations recorded in $\varphi$\textsubscript{1} and $\varphi$\textsubscript{2} cannot be distinguished by observing destructor failures or {\bf equality tests}.\\
+\hspace*{14pt}{\bf Note 4.1.2:} We can omit writing E as subscript in all of the above since for SAPIC we had assumed E to be a fixed equational theory.
+
+
+\subsection{Bi-Operational Semantics}
+The semantics of biprocesses is defined as expected via a relation that expresses when and how a biprocess may evolve. A biprocess reduces if and only if, both sides of the biprocess reduce in the same way: a communication succeeds on both sides, a conditional ({\it lookup and the various checks in the operational semantics already defined}) has to be evaluated in the same way in both sides too. When the two sides of the biprocess reduce in different ways, the biprocess blocks. The notions introduced so far on processes are extended as expected on biprocesses: the property has to hold on both fst(P) and snd(P) for any biprocess P.\newline
+
+{\it Note 4.2(a)}: For {\it M, N} $\epsilon$ $\Ta$, containing {\bf diff} we write {\it M =\textsubscript{E} N} if and only if fst({\it M}) =\textsubscript{E} fst({\it N}) and snd({\it M}) =\textsubscript{E} snd({\it N}). \newline
+
+With these assumptions, the previous semantics should work. We represent the transitions as {$\rightarrow$}\textsubscript{bi}. The other extensions such as labelled transitions, {$\Rightarrow$}\textsubscript{bi}, {$\rightarrow$}\textsuperscript{*}\textsubscript{bi}, follow as usual.
+
+\subsubsection{Addition of recipes}
+Attacker’s  observations  are  seen  as  sequences  of  terms that can be used by reference. For that, we refine variables as $\Va$ = $\Va$\textsuperscript{1} $\cup$ $\Aa$$\Xa$,  variables  of $\Aa$$\Xa$ = \{ax\textsubscript{1}, ax\textsubscript{2},...\}({\it axioms}) acting as pointers. A term $\xi$ $\epsilon$ $\Ta$ is called a recipe if it is built from public funtions in the signature using {\it names} only from {\it PN} $\cup$ $\Aa$$\Xa$: typically, an attacker observing sequentially aenc({\it m}, pk({\it k})) and {\it k} can use recipe $\xi$ = adec(ax\textsubscript{1}, ax\textsubscript{2}) to construct {\it m}. Variables of $\Va$\textsuperscript{1} stick to the  initial  role  of  variables.\newline
+
+\vspace{-12pt}
+\hspace*{8pt}From now on, $\sigma$ for any process configuration will look like $\sigma$ = \{{\it u}\textsubscript{1}/ax\textsubscript{1}, {\it u}\textsubscript{2}/ax\textsubscript{2},..., {\it u}\textsubscript{{\it n}}/ax\textsubscript{{\it n}}\}\\ 
+$\sigma$ embodies the attacker’s knowledge:  typically $\xi$$\sigma$$\downarrow$ is the result obtained from the recipe $\xi$ w.r.t. the attacker’s observations recorded in $\sigma$. So the {\bf D}($\sigma$) will have only axioms.
+
+\vspace{8pt}
+To the modified semantics above, we add labels to some of the actions:
+\begin{itemize}
+    \item {\bf Input actions:} In($\xi$, $\zeta$),  where $\xi$ and $\zeta$ are  recipes,  model an input from the attacker of a message (crafted from recipe $\zeta$) on some channel (known through recipe $\xi$); 
+    \item {\bf Output actions:} Out($\xi$, ax\textsubscript{{\it n}}), where $\xi$ is  a  recipe, model an output on a channel known by the attacker (using recipe $\xi$), recorded into the frame (at axiom ax\textsubscript{{\it n}} $\epsilon$ $\Aa$$\Xa$).
+\end{itemize}
+
+So we add the 3 rules below for $\rightarrow$\textsubscript{bi} :
+\vspace{4pt}
+\begin{center}
+    \hfill($\Ea$, $\Sa$, $\Pa$, $\sigma$, $\Lb$) {$\xrightarrow[\text{}]{\text{K($\xi$)}}$}\textsubscript{bi} ($\Ea$, $\Sa$, $\Pa$, $\sigma$, $\Lb$) \hfill if $\xi$ is a recipe\newline
+    %\hfill \hfill if $\nu$$\Ea$. $\sigma$ $\vdash$ {\it M}\newline
+    
+    \vspace{4pt}
+    ($\Ea$, $\Sa$, $\Pa$ $\cup$\textsuperscript{\#} {Out({\it M, N}); P}, $\sigma$, $\Lb$) {$\xrightarrow[\text{}]{\text{Out($\xi$, ax\textsubscript{n})}}$}\textsubscript{bi} ($\Ea$, $\Sa$, $\Pa$ $\cup$\textsuperscript{\#}{P}, $\sigma$ $\cup$ \{{\it N/}ax\textsubscript{{\it n}}\}, $\Lb$)\\
+    \hfill \hfill if $\xi$, $\zeta$ $\epsilon$ $\Ta$ built from $\Sigma$ using names from {\it PN} $\cup$ {\bf D}($\sigma$),\\
+    \hfill \hfill $\xi$$\sigma$$\downarrow$ = {\it M} and n = $\mid$$\sigma$$\mid$ + 1\newline
+    
+    %\vdash is the "derives" symbol
+    
+    \vspace{4pt}
+    ($\Ea$, $\Sa$, $\Pa$ $\cup$\textsuperscript{\#} {In({\it M, N}); P}, $\sigma$, $\Lb$) {$\xrightarrow[\text{}]{\text{In($\xi$, $\zeta$)}}$}\textsubscript{bi} ($\Ea$, $\Sa$, $\Pa$ $\cup$\textsuperscript{\#}\{P$\tau$\}, $\sigma$, $\Lb$) \\
+    \hfill \hfill if $\xi$, $\zeta$ $\epsilon$ $\Ta$ built from $\Sigma$ using names from {\it PN} $\cup$ {\bf D}($\sigma$), $\xi$$\sigma$$\downarrow$ = {\it M},\\ \hfill \hfill $\zeta$$\sigma$$\downarrow$ = {\it N}$\tau$ and $\tau$ is grounding for {\it N}
+      
+    \vspace{16pt}
+    {\it Figure 1: Transitions with recipes added to the semantics}
+    
+\end{center}
+\vspace{6pt}
+{\it Remark 4.2.1(a): }$\mid$$\sigma$$\mid$ represents the cardinality of $\sigma$\newline
+{\it Remark 4.2.1(b): }"built from $\Sigma$" in the 3 rules above, we mean public functions only.\newline
+{\it Remark 4.2.1(c): }{\it M, N} $\epsilon$ $\Ta$.
+
+\subsection{Diff Equivalence}
+\hspace*{14pt}{\bf A Precaution: }Consider {\it P} = event(diff('a','b')). We want this to be diff equivalent. If we use the event name as a label (as in our semantics), these will not be diff equivalent. So, let us define a function {\it remove} which only allows In(. , .) and Out(. , .) for the last 2 points in 4.3.1.
+\begin{center}
+  remove($\ell$) = ($\ell$ = In(. , .) $\vee$ $\ell$ = Out(. , .)) ? $\ell$ : $\emptyset$ 
+\end{center}
+We can extend this to traces as well. Let us define a new set of traces using the function {\it remove}.
+\begin{center}
+  {\it traces\textsuperscript{pi\_e}(B\textsubscript{0})} = \{ [{\it remove(F\textsubscript{1}),$\cdots$, remove(F\textsubscript{n})}] $\bigm|$ [{\it F\textsubscript{1},$\cdots$, F\textsubscript{n}}] $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})\}
+\end{center}
+
+%\vspace{8pt}
+{\bf Definition 4.3.1: }{\it An extended biprocess B\textsubscript{0} satisfies} diff equivalence {\it if for every biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) such that B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B for some tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0}), we have that:}
+\begin{itemize}
+  \vspace{-6pt}
+  \item $\nu$$\Ea$. fst($\sigma$) $\sim$ $\nu$$\Ea$. snd($\sigma$)
+  \vspace{-3pt}
+  \item {\it if} fst({\it B}) {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$} {\it A}\textsubscript{{\it L}} then {$\exists$} {\it B\textsubscript{1}} such that 
+  B {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$}{\textsubscript{bi}} {\it B\textsubscript{1}} and fst({\it B\textsubscript{1}}) = {\it A}\textsubscript{{\it L}}
+  \vspace{-6pt}
+  \item {\it if} snd({\it B}) {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$} {\it C}\textsubscript{{\it L}} then {$\exists$} {\it B\textsubscript{2}} such that 
+  B {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$}{\textsubscript{bi}} {\it B\textsubscript{2}} and snd({\it B\textsubscript{2}}) = {\it C}\textsubscript{{\it L}}
+\end{itemize}
+\vspace{3pt}
+{\it Note 4.3.2:} $\ell$ should not be an event in the last 2 bullets above i.e. it should only be {\it inputs or outputs.} So we use remove($\ell$). $\ell$ here is the usual symbol of a label defined in the semantics.
+\vspace{3pt}
+
+\section {Connecting Tamarin and SAPIC}
+\vspace{8pt}
+{\bf Conjecture:} Let {\it B} be a biprocess in SAPIC. If {\it B} is {\it tamarin equivalent} then {\it B} is {\it diff equivalent.}\newline\newline
+{\bf Contrapositive: }{\it Let B\textsubscript{0} is a SAPIC biprocess. Assume B\textsubscript{0} is not diff equivalent. This provides a witness i.e. $\exists$ tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0}) such that the biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) satisfying B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B, violates atleast one of the above 3 conditions in defintion of diff equivalence. If we can show that this witness violates tamarin equivalence, we are done.}\newline
+
+Firstly, we will try to argue that tamarin rules can "move" to [[B]], using existing results on SAPIC trace properties. (can be found \href{https://hal.archives-ouvertes.fr/hal-01337409v2/document}{\it {here}})\newline
+\subsection{Dummy Events}
+
+To avoid loss of information, we introduce {\bf dummy events} to unhide all the silent actions. We then try to construct a {\it well formed trace formula $\varphi$}, and use the result:
+\begin{center}
+    {\it traces\textsuperscript{pi}} ({\it P}) $\models$\textsuperscript{*} $\varphi$ {\it iff}  {\it traces\textsuperscript{msr}} ([[{\it P}]]) $\models$\textsuperscript{*} [[$\varphi$]]\textsubscript{*}
+\end{center}
+{\it Note 5.1(a): }We cannot use reserved facts in $\varphi$ else it will not remain well-formed. \newline
+
+Using the idea of reserved facts we introduce dummy events in biprocess B\textsubscript{0}, and after their insertion all the occurences on LHS below will be replaced by ones on the RHS. For this section everything in LHS{\it (before ;P)} below will be referred to as an {\bf action}.\newline 
+\hspace*{14pt}Also, note that we should add the event after the actual action has taken place else it will be a problem for events such as New\_e(a) where a is not defined before the actual process.\newline 
+
+\vspace{8pt}
+{\it Remark: }$\leftrightarrow$ represents \underline{{\it to be replaced by}} as already explained above. 
+\vspace{8pt}
+\begin{center}
+        $\nu$a; {\it P} $\leftrightarrow$ $\nu$a; event New\_e(a); {\it P}\newline\newline
+    Out({\it M}, {\it N}); {\it P} $\leftrightarrow$ Out({\it M}, {\it N}); event Out\_e({\it M}, {\it N}); {\it P} \newline\newline
+    In({\it M}, {\it N}); {\it P} $\leftrightarrow$ In({\it M}, {\it N}); event In\_e({\it M}, {\it N}); {\it P} \newline\newline
+    insert {\it s, t}; {\it P} $\leftrightarrow$ insert {\it s, t}; event Insert\_e({\it s, t}); {\it P} \newline\newline 
+    delete {\it s}; {\it P} $\leftrightarrow$ delete {\it s}; event Delete\_e({\it s}); {\it P} \newline\newline 
+    lock\textsuperscript{{\it l}} s; {\it P} $\leftrightarrow$ lock\textsuperscript{{\it l}} s; event Lock\_e({\it lock\textsubscript{l}, s}); {\it P} \newline\newline
+    unlock\textsuperscript{{\it l}} s; {\it P} $\leftrightarrow$ unlock\textsuperscript{{\it l}} s; event Unlock\_e({\it lock\textsubscript{l}, s}); {\it P} \newline\newline
+    if {\it pr(M\textsubscript{1}, . . . , M\textsubscript{k}}) then {\it P} else {\it Q} $\leftrightarrow$ if {\it pr(M\textsubscript{1}, . . . , M\textsubscript{k})} then event Pred\_e\textsubscript{pr}{\it (M\textsubscript{1}, . . , M\textsubscript{k})}; {\it P} else event Pred\_e\textsubscript{not\_pr}{\it (M\textsubscript{1}, . . , M\textsubscript{k})}; {\it Q}\newline\newline  
+    lookup {\it M} as {\it v} in {\it P} else {\it Q} $\leftrightarrow$ lookup {\it M} as {\it v} in event Set\_e({\it M, v)}; {\it P} else event NotSet\_e({\it M)}; {\it Q}\newline
+    
+    \vspace{10pt}
+    {\it Figure 2: Addition of dummy events}
+\end{center}
+
+\vspace{14pt}
+
+{\bf Definition 5.1.1: }For every (bi)process {\it B}, we define {\it dummy(B)} as {\it B} modified as shown above (added the dummy events). So {\it dummy(B) = B} upto the dummy events shown in Figure 2. \newline
+
+From now on, whenever we say {\it events} for dummy(B), it is inclusive of these dummy events and the above replacement will be treated as {\it implicit} for our proof. So dummy(B) essentially adds the dummy events to B as described above.\newline
+
+{\bf Lemma 5.1.1: }B\textsubscript{0} is {\it diff equivalent} iff dummy(B\textsubscript{0}) is {\it diff equivalent}.\newline
+
+{\bf Proof } \newline
+
+{\bf Step 1: }{\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B} {\it if and only if} dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} dummy({\it B}) where tr\textsubscript{1} = tr\textsubscript{2} up to dummy events.
+
+{\it Part 1}: Firstly we show that if {\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B} then dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} dummy({\it B}) where tr\textsubscript{1} = tr\textsubscript{2} up to dummy events.\newline
+\hspace*{14pt}The only difference between {\it dummy(B)} and {\it B} or {\it dummy(B\textsubscript{0})} and {\it B\textsubscript{0}} are the dummy events. Correspondingly, we can write:
+\begin{center}
+    {\it traces\textsuperscript{pi}(dummy(B\textsubscript{0}))} = \{ [{\it E\textsubscript{1\_1},$\cdots$,E\textsubscript{k\_1}, F\textsubscript{1},$\cdots$, E\textsubscript{1\_n},$\cdots$,E\textsubscript{k\_n}, F\textsubscript{n}, E\textsubscript{1\_n+1},$\cdots$,E\textsubscript{k\_n+1}}] $\bigm|$ [{\it F\textsubscript{1},$\cdots$, F\textsubscript{n}}] $\epsilon$ {\it traces\textsuperscript{pi}(B\textsubscript{0})},\\$\forall$ i, j {\it E\textsubscript{i\_j} is the dummy event of the i\textsuperscript{th} silent action before F\textsubscript{j} in the trace}\}\\
+\end{center}
+Remark: {\it $\forall$ i E\textsubscript{i\_n+1} are the dummy events after F\textsubscript{n} in the trace.}\newline
+
+So for any tr\textsubscript{1} $\epsilon$ {\it traces\textsuperscript{pi}(B\textsubscript{0})} $\exists$ tr\textsubscript{2} $\epsilon$ {\it traces\textsuperscript{pi}(dummy(B\textsubscript{0}))} such that tr\textsubscript{2} has all the dummy events corresponding to the actions performed in {\it B\textsubscript{0}} (upto tr\textsubscript{1}) plus the contents of tr\textsubscript{1}.\hfill \hfill  $\cdots$ (1)\newline
+
+{\it Note:} "\underline{upto} tr\textsubscript{1} in the above statement" means that if  {\it B\textsubscript{0}} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B} then tr\textsubscript{2} should not contain the dummy events corresponding to actions which have not yet happened i.e. they are in B. For example: if {\it tr\textsubscript{1}} = [{\it F\textsubscript{1},$\cdots$,F\textsubscript{n}}], {\it tr\textsubscript{2}} = [{\it E\textsubscript{1\_1},$\cdots$,E\textsubscript{k\_1}, F\textsubscript{1},$\cdots$, E\textsubscript{1\_n},$\cdots$,E\textsubscript{k\_n}, F\textsubscript{n}}]. So we add dummy events to tr\textsubscript{2} from {\it traces\textsuperscript{pi}(dummy(B\textsubscript{0}))} as mentioned here. \newline
+
+It can be argued that from $dummy(B_0)$ we can move to $dummy(B)$ because the events do not influence how the process can evolve, and we know that $B_0$ can move to $B$ and the traces will obviosuly just differ by the dummy event labels.\newline
+
+{\it Alternate}: Now, if we choose tr\textsubscript{1} and tr\textsubscript{2} as indicated in (1) and let dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} {\it C}, then from all the above arguments it follows that {\it C} will have all contents of B since tr\textsubscript{2} is \underline{{\it upto}} tr\textsubscript{1} and \\{\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B}. Plus, it will have some dummy events since it has come from {\it dummy(B\textsubscript{0})}. \\Since {\it C} has {\it B} preserved in it, dummy events of actions in {\it B} are not in tr\textsubscript{2} (else {\it C} would have reduced further). So {\it C} is B with its dummy events. {\it C = dummy(B)} \hfill \hfill (Step 1 Part 1 {\it Proved})  \newline
+
+{\it Part 2}: Now we show that if dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} dummy({\it B}) then {\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B} where tr\textsubscript{1} = tr\textsubscript{2} up to dummy events.\newline
+
+If $dummy(B_0)$ can move to $dummy(B)$, then $B_0$ can move to $B$ using the same trace modulo the dummy events, as the dummy events do not influence the behavior of the process (since they add only events and no other rules, so the path or the other actions executed by the process remains the same).
+  \hfill \hfill (Step 1 Part 2 {\it Proved})  \newline
+
+{\bf Hence}, Step 1 stands proved. \newline 
+
+{\bf Step 2: }Now we argue that frames of B and dummy(B) are the same (hence static equivalence).\newline
+\hspace*{14pt}For a (bi)processes {\it B} = ($\Ea$, $\Sa$, $\Pa$, $\sigma$, $\Lb$) frames are dependent on $\Ea$ and $\sigma$ only. {\it Dummy events} are just events, neither do they add fresh names (so $\Ea$ is unaffected) nor do they output any new terms to the environment. (so $\sigma$ is unaffected). Since at all stages and for any biprocess $\Ea$ and $\sigma$ of dummy({\it B}) and {\it B} is the same so frames of dummy({\it B}) and {\it B} are equal.\newline
+\hspace*{14pt} If 2 (bi)process have all their corresponding frames equal, then those frames are statically equivalent (Defintion 4.1.1).\hfill \hfill (Step 2 {\it Proved})\newline
+
+From Step 1 and Step 2, we can easily see why the lemma holds. For given {\it B\textsubscript{0} and B}, we have {\it dummy(B\textsubscript{0}) and dummy(B)} satisfying the definition. Let us go through the 3 points in Definition 4.3.1:
+\begin{itemize}
+  \item holds for {\it B} iff it holds for {\it B\textsubscript{0}} since $\Ea$ and $\sigma$ are same in both.
+  \item What Step 1 showed for traces follows for labels as well, since each individual label is a trace. So it holds for {\it B} iff it holds for {\it dummy(B)} i.e. \newline
+
+  {\it if} fst({\it B}) {$\xrightarrow[\text{}]{\text{$\ell$}}$} {\it A}\textsubscript{{\it L}} then {$\exists$} {\it B\textsubscript{1}} such that 
+  B {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}} and fst({\it B\textsubscript{1}}) = {\it A}\textsubscript{{\it L}} {\bf holds} \underline{{\it if and only if}}\\
+  {\it if} fst(dummy({\it B})) {$\xrightarrow[\text{}]{\text{$\ell$}}$} dummy{\it (A\textsubscript{L})} then dummy{\it (B)} {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} dummy{\it (B\textsubscript{1})} and fst(dummy{\it (B\textsubscript{1})}) = dummy{\it (A\textsubscript{L})} {\bf holds}\newline
+
+  Note: $\ell$ is same in both since $\ell$ can only be input/output labels as mentioned in Definition \hspace*{26pt} 4.3.1. Since $\ell$ cannot be a dummy event, the same label will move both since \\ \hspace*{26pt}according to Step 1, the only difference between the two traces({\it labels here}) were the \hspace*{26pt}dummy events added to the trace.\newline
+
+  {\it Remark: } We have used Step 1 in combination with dummy(fst(B)) = fst(dummy(B)). This is easy to see since for a B = ($\Ea$, $\Sa$, $\Pa$, $\sigma$, $\Lb$), dummy(B) and B differ only in $\Pa$ since the addition of dummy events does not change $\Ea$ and $\sigma$ (in Step 2 Proof). It does not change $\Lb$ or $\Sa$ either since it does not add or remove stores/locks.\newline
+  We have also used the fact that anything which holds for $\Rightarrow$\textsubscript{bi} holds for $\Rightarrow$ correspondingly.\newline
+
+  \item same as previous step, {\it replacing} fst with snd. \newline
+\end{itemize}
+Hence B\textsubscript{0} is {\it diff equivalent} iff dummy(B\textsubscript{0}) is {\it diff equivalent}.\hfill \hfill (Lemma {\it Proved})\newline
+
+\vspace{12pt}
+
+{\bf Lemma 5.1.2: }B\textsubscript{0} is {\it tamarin equivalent} {\it iff} dummy(B\textsubscript{0}) is {\it tamarin equivalent}.\newline
+
+{\bf Proof: }If we observe carefully the reserved facts introduced in the Tamarin translation are like {\it our} introduced dummy events. So, in some sense, by introducing dummy events we are {\it duplicating} those events. Also, dummy events are action facts. They can never be present in {\it conclusion/premises} of any rule. They cannot change behaviour of the bi-system since they cannot cause any transition. As visible from Figure 2, they don't bring in any new variables which are not present (used the ones which are already in use by something else). So in a sense they are just like labels to a rule, symbolising that this action has occured (which is already done by the reserved facts). They only advance the state by 1 ($state_1$ becomes $state_11$. This will happen on both sides. Also, they are hidden from the environment/the intruder -- so they don't bring upon any change to equivalence in Tamarin.\newline
+
+
+Hence dummy(B\textsubscript{0}) is {\it tamarin equivalent} {\it iff} B\textsubscript{0} is also {\it tamarin equivalent}.\hfill \hfill (Lemma {\it Proved})
+
+\vspace{12pt}
+\subsection{Some Tamarin considerations}
+\vspace{8pt}
+Let us establish a few useful results:
+\begin{itemize}
+  \item New semantics will have traces that may contain K($\xi$) where $\xi$ is a recipe. But tamarin does not have a similar trace. The trace in tamarin would be K($\xi$$\sigma$$\downarrow$) where $\sigma$ is the current frame in SAPIC. Similarly traces like In($\xi$, $\zeta$) and Out($\xi$, ax\textsubscript{{\it n}}) in SAPIC correspond to In($\xi$$\sigma$$\downarrow$, $\zeta$$\sigma$$\downarrow$) and Out($\xi$$\sigma$$\downarrow$, ax\textsubscript{{\it n}}$\sigma$) in Tamarin respectively. From now on, for a trace {\it tr} in SAPIC, when we refer to the same trace {\it tr} in tamarin, we assume the {\bf above conversion is already done}. We assume this as implicit.\hfill \hfill $\cdots$ (2)
+
+  \item If {\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} {\it B} and {\it B} {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}} then by \underline{{\it correctness of the translation}} I know that tr.$\ell$ is in the traces of [[{\it B}\textsubscript{0}]] as well since {\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr.$\ell$}}$}\textsubscript{bi} {\it B\textsubscript{1}} is also a valid transition.\hfill \hfill $\cdots$ (3)\newline
+
+  %\item \newline
+\end{itemize}  
+
+{\bf Lemma 5.2.1: }If {\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}, then the tamarin rules can also \hspace*{100pt} "{\it move}" to [[{\it B}]]. \newline
+
+{\it Note 5.2(a):} By "\underline{{\it move}}", we mean that while executing [[{\it B\textsubscript{0}}]] we reach a state such that the remaining actions (including {\it silent actions}) are exactly the same as the actions in [[{\it B}]] (maybe with different names or paramters and ignoring the Init()). We cannot reach [[{\it B}]] exactly since it has a different Init(), different representations of actions, their parameters and different state numbers. We always ignore the reserved facts since they are not actually actions in SAPIC, they are introduced in the translation.\newline
+
+{\bf Proof }\newline
+
+{\bf Statement 5.2.2}: If a step is executed in SAPIC on {\it B}, the same execution with the same step {\it(steps = labels plus silent actions which have no mark in the trace)} can be done in Tamarin. \newline
+
+{\it Proof:} To prove this, we include the dummy events to unhide the {\it silent actions}. For any B, in dummy({\it B}) each and every step has a label in the trace ({\it no silent actions}). By the {\it correctness of translation}, the translation also has those labels. It implies for each and every step in any {\it B} we have a step in the translation. (dummy(B) just unhides the silent actions for the proof). That means the statement holds on {\it B} since dummy events do not add any actions apart from events on both sides. (SAPIC and Tamarin) \hfill \hfill $\cdots$ (4) \newline
+{\it Note}: While comparing traces between SAPIC and Tamarin we always assume (2) implictly.\newline
+
+Now, return to our lemma. We have {\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}. When {\it B\textsubscript{0}} reaches {\it B}, the tamarin rules reach a state after executing all the steps corresponding to each step in transition from {\it B\textsubscript{0}} to {\it B}. Now, let us use {\bf induction} to prove lemma 5.2.1.
+
+{\it Inductive hypothesis}: $\forall${\it B\textsubscript{1}} $\forall$$\ell$. {\it B} {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}}, we assume that the tamarin rules can move to [[{\it B\textsubscript{1}}]].\hfill \hfill ({\it "move" same as in Note 5.2(a)}) 
+
+{\it Base Case: }{\it B} = 0; So it just means both the SAPIC process and the tamarin translation of {\it B}\textsubscript{0} can reach the end (0;) which holds trivially.
+
+{\it Inductive Proof: }If not the base case, we have {\it B} {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}}. All the actions in {\it B} are either actions in one of the {\it B\textsubscript{1}}s or they are $\ell$. It cannot be anything else it would have reduced further (since {\it B} is not 0). And using Statement 5.2.2 we can get $\ell$ in the Tamarin rules. By induction hypothesis we get all actions of {\it B\textsubscript{1}} also. So all actions in {\it B} are covered. So we have succesfully "moved" to [[{\it B}]].\hfill \hfill $\cdots$ (Lemma 5.2.1 {\it Proved})\newline
+
+{\bf Lemma 5.2.2: }For any recipe $\xi$ in SAPIC, we can {\it mimic} this recipe in tamarin, applying the translation.   \newline
+
+{\bf Proof: }Recipe is a tool to help deducing a given term.  Due to correctness of the translation, outputs in SAPIC are {\it translated} as outputs in Tamarin. So, axioms which are essentially outputs to the environment correspond to symbols ({\it terms}) which can build {\it \jannik{knows} facts} in Tamarin. ({\it K(.)} is a {\it \jannik{knows} fact}). Now if axioms can be {\it mimicked}, recipes can be mimicked too since recipes are terms built using public funtions, names, constants and axioms, which are allowed by {\it MD}. Thus, recipe along with $\sigma$ helps in deducing terms.({\it Explanation in} (2) {\it at beginning of Section 5.2}) \hfill \hfill $\cdots$ (Lemma 5.2.2 {\it Proved})\newline
+
+{\bf Lemma 5.2.3: }Consider an extended biprocess {\it B\textsubscript{0}} such that $\exists$ {\it biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) satisfying B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B for some tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}. If $\nu$$\Ea$. fst($\sigma$) $\not\sim$ $\nu$$\Ea$. snd($\sigma$) then {\it B\textsubscript{0}} is not Tamarin equivalent.\newline
+
+{\bf Proof: }A frame has no {\it formal definition} in Tamarin. A frame in SAPIC is nothing but a sequence of outputs. Everything in the frame has been an Out(. , .) action in SAPIC which builds up K(.) facts in Tamrin. Also, it follows from {\bf Lemma 5.2.2} that recipes can be mimicked in Tamrin, using function symbols, nose facts and {\it MD}. So everything computed on a frame in SAPIC can be mimicked in Tamarin. Static equivalence in SAPIC (according to 4.1.1) means that no attacker computations (equality tests or destructor failures) can distinguish the 2 frames. Attacker computations in SAPIC can be mimicked by {\it MD} (Example: equality tests are mimicked by the {\it IEquality} rule) in Tamarin.\newline 
+
+So, if static equivalence does not hold in SAPIC (i.e. attacker can use computations to distinguish 2 frames), since everything can be {\it effectively mimicked} in Tamarin (as shown in the above paragraph), the intruder can use {\it corresponding computations} in Tamarin to distinguish between the 2 {\it output sequences} (frames).\newline
+
+  % $\neg$p $\Rightarrow$ $\neg$q $\equiv$ q $\Rightarrow$ p \hfill \hfill (Contraposition, $\neg$$\neg$p = p) $\cdots$ (5) \newline
+  % (p $\Rightarrow$ q) $\wedge$ (q $\Rightarrow$ p) $\equiv$ p $\Leftrightarrow$ q \hfill \hfill ({\it From above paragraph, 5}) \newline
+  %$$p $$ q $\wedge$ p $$ q 
+Now coming back to our lemma, so the intruder can distinguish between the output sequences for fst($\sigma$) and snd($\sigma$) in Tamarin. The source of $\sigma$ are Out actions. What it means is that in L([[{\it B\textsubscript{0}}]]), there is a multiset rewrite rule which has an Out(.) Fact as a conclusion (lead to the K(.) that helped to distinguish) and which cannot be mirrored. (similar for R([[{\it B\textsubscript{0}}]])\newline
+
+Due to the lack of a mirror in the above case, we can conclude that {\it B\textsubscript{0}} is not tamarin equivalent.
+
+\hfill \hfill $\cdots$ (Lemma 5.2.3 {\it Proved})\newline
+
+\vspace{6pt}
+{\bf Lemma 5.2.4: }Consider an extended biprocess {\it B\textsubscript{0}} such that $\exists$ {\it biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) satisfying B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B for some tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}. If the following condition holds then {\it B\textsubscript{0}} is not Tamarin equivalent.
+\begin{center}
+  {\it if} fst({\it B}) {$\xrightarrow[\text{}]{\text{$\ell$}}$} {\it A}\textsubscript{{\it L}} then {$\forall$} {\it B\textsubscript{1}} such that 
+  B {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}}, fst({\it B\textsubscript{1}}) $\neq$ {\it A}\textsubscript{{\it L}}
+\end{center}
+
+{\bf Proof: }What the above statement means is that the fst({\it B}) can translate to {\it A\textsubscript{L}} without the biprocess {\it B} being able to go ahead via that route. It means that the biprocess has been blocked or the 2 processes of the biprocess (fst and snd) translate/reduce differently. In these cases, the semantics does not allow for the biprocess {\it B} to move. There are a handful of {\bf cases} when this can happen: ({\it 1 is similar to 2, 3 is similar to 4})
+\begin{enumerate}
+  \item {\it if-then-else}: fst and snd move differently (one to {\it if}, other to {\it else}) so as a whole the biprocess \hspace*{58pt}cannot move.
+  \vspace{-4pt}
+  \item {\it lookup}: fst and snd move differently (one to a {\it successful lookup}, other to {\it else}) so as a \hspace*{42pt}whole the biprocess cannot move.
+  \vspace{-4pt}
+  \item {\it Communication} failure on one side, success on the other
+  \vspace{-4pt}
+  \item {\it lock/unlock} failure on one side, success on the other\newline
+\end{enumerate}  
+
+Let us show that in each case, we can prove that {\it B\textsubscript{0}} is not Tamarin equivalent.\newline
+%\pagebreak
+
+\underline{Case 1}:  {\it if-then-else}: fst and snd move differently (one to {\it if}, other to {\it else}) so as a whole the biprocess cannot move. Let us make use of the dummy events here. (Refer to {\it Figure 2} for details) So if assume the all processes are annotated what this case means is that: fst(B) executes event Pred\_e\textsubscript{pr}{\it (M\textsubscript{1}, . . , M\textsubscript{k})}, but snd(B) executes event Pred\_e\textsubscript{not\_pr}{\it (M\textsubscript{1}, . . , M\textsubscript{k})}, on the same $\ell$ which is why the biprocess as a whole cannot move.
+
+From Lemma 5.2.1 and by correctness, we know that fst(B) can move to {\it A\textsubscript{L}}, then {\it L}[[{\it B}]] can move to [[{\it A\textsubscript{L}}]]. Also, event Pred\_e\textsubscript{pr}{\it (M\textsubscript{1}, . . , M\textsubscript{k})} must have executed in the transition according to this case. But it is not executed when $\ell$ acts on snd({\it B}), else the biprocess could have moved too. This means it has not been executed in {\it R}[[{\it B}]]. So, Tamarin cannot compute any equivalent process on the other side. Let us try an example:
+
+{\it B} = if(diff(a,b) = a) then P else Q. Assume annotation by dummy events. So if {\it pr} is equality. Dummy of this would be: {\it dummy(B)} = if(diff(a,b) = a) then Pred\_e\textsubscript{eq}{\it (diff(a, b), a)}; P else Pred\_e\textsubscript{not\_eq}{\it (diff(a, b), a)}; Q. The predicate acts as a sort of a restriction after the translation, satisfied by L([[{\it dummy(B)}]]) and not by R([[{\it dummy(B)}]]). Since the translation is {\it sound}, the event is executed in Tamarin also. So, Pred\_e\textsubscript{eq} is executed in the left side but not in the right side. (since snd took the {\it else branch} while fst took the {\it then branch}) Thus they can be distinguished in Tamarin. 
+
+Thus, Tamarin cannot find a mirror for the L(.) instance since the event Pred\_e\textsubscript{pr} has never been executed in the R(.) instance. So, any rule producing/using this fact cannot be mirrored. Thus in translation of {\it B\textsubscript{0}}, we reach a state from where the L(.) instance cannot be mirrored. So on the whole {\it B\textsubscript{0}} cannot satisfy tamarin equivalence.\newline
+
+\underline{Case 2}:  {\it lookup}: fst and snd move differently (one to a {\it successful lookup}, other to {\it else}) so as a whole the biprocess cannot move. Let us make use of the dummy events here. (Refer to {\it Figure 2} for details) So if assume the all processes are annotated what this case means is that: fst(B) executes event Set\_e{\it (M, v)}, but snd(B) executes event NotSet\_e{\it (M)}, on the same $\ell$ which is why the biprocess as a whole cannot move.
+
+From Lemma 5.2.1 and by correctness, we know that fst(B) can move to {\it A\textsubscript{L}}, then {\it L}[[{\it B}]] can move to [[{\it A\textsubscript{L}}]]. Also, event Set\_e{\it (M, v)} must have executed in the transition according to this case. But it is not executed when $\ell$ acts on snd({\it B}), else the biprocess could have moved too. This means it has not been executed in {\it R}[[{\it B}]]. So, Tamarin cannot compute any equivalent process on the other side. Let us try an example:
+
+{\it B} = lookup diff(a,b) as x in P else Q. Assume annotation by dummy events. Also assume a leads to a successful lookup but b doesnt. Dummy of this would be: {\it dummy(B)} = lookup diff(a,b) as x in Set\_e(diff(a, b), x); P else NotSet\_e(diff(a, b)); Q. The success of the lookup acts as a sort of a restriction after the translation, satisfied by L([[{\it dummy(B)}]]) and not by R([[{\it dummy(B)}]]). Since the translation is {\it sound}, the event is executed in Tamarin also. So, Set\_e is executed in the left side but not in the right side. (since snd took the {\it else branch} while fst took the {\it then branch}) Thus they can be distinguished in Tamarin. 
+
+Thus, Tamarin cannot find a mirror for the L(.) instance since the event Set\_e has never been executed in the R(.) instance. So, any rule producing/using this fact cannot be mirrored. Thus in translation of {\it B\textsubscript{0}}, we reach a state from where the L(.) instance cannot be mirrored. So on the whole {\it B\textsubscript{0}} cannot satisfy tamarin equivalence.\newline
+
+\underline{Case 3}: {\it Communication} failure on one side, success on the other. This maybe, for example, an In/Out action such that only 1 side can communicate. Inability to communicate of the other side maybe due to the {\it violation} of one/more conditions as can be seen in the semantics. Again let us use annotation by dummy events. Here we assume fst can communicate successfully. So the event In\_e will be executed only on the fst side and correspondingly only on the L(.) side in Tamarin, while there will be no such event found on the snd side in SAPIC (and correspondingly on the R(.) side in Tamarin).
+
+From Lemma 5.2.1 and by correctness, we know that fst(B) can move to {\it A\textsubscript{L}}, then {\it L}[[{\it B}]] can move to [[{\it A\textsubscript{L}}]]. Also, event In\_e(. , .) must have executed in the transition according to this case. But it is not executed when $\ell$ acts on snd({\it B}), else the biprocess could have moved too. This means it has not been executed in {\it R}[[{\it B}]]. So, Tamarin cannot compute any equivalent process on the other side. Let us try an example:
+
+{\it B} = in({\it diff('c', c), x}); {\it A\textsubscript{L}}, where {\it c} is a private channel. It might happen that an input might not succeed in a private channel ({\it due to several reasons}). Dummy of this would be: {\it dummy(B)} = in({\it diff('c', c), x}); event In\_e({\it diff('c', c), x}); {\it A\textsubscript{L}}. The success of the communication is implied by the occurence of the event In\_e even after the translation, satisfied by L([[{\it dummy(B)}]]) and not by R([[{\it dummy(B)}]]). Since the translation is {\it sound}, the event is executed in Tamarin also. So, In\_e is executed in the left side but not in the right side. (since snd fails to go ahead) Thus they can be distinguished in Tamarin. 
+
+Thus, Tamarin cannot find a mirror for the L(.) instance since the event In\_e has never been executed in the R(.) instance. So, any rule producing/using this fact cannot be mirrored. Thus in translation of {\it B\textsubscript{0}}, we reach a state from where the L(.) instance cannot be mirrored. So on the whole {\it B\textsubscript{0}} cannot satisfy tamarin equivalence.\newline
+
+{\it Note}: We have taken In(.) as an {\it example} throughout Case 3. A similar {\it proof} follows for Out(.)\newline
+
+\underline{Case 4}: {\it lock/unlock} failure on one side, success on the other. This maybe, if one of the processes(out of fst/snd) violates lock and unlock rules i.e. it tries to lock something which is already locked or tries to unlock something which has not been locked. Again let us use annotation by dummy events. Here we assume fst can lock successfully. So the event Lock\_e will be executed only on the fst side and correspondingly only on the L(.) side in Tamarin, while there will be no such event found on the snd side in SAPIC (and correspondingly on the R(.) side in Tamarin).
+
+From Lemma 5.2.1 and by correctness, we know that fst(B) can move to {\it A\textsubscript{L}}, then {\it L}[[{\it B}]] can move to [[{\it A\textsubscript{L}}]]. Also, event Lock\_e(. , .) must have executed in the transition according to this case. But it is not executed when $\ell$ acts on snd({\it B}), else the biprocess could have moved too. This means it has not been executed in {\it R}[[{\it B}]]. So, Tamarin cannot compute any equivalent process on the other side. Let us try an example:
+
+{\it B} = lock\textsuperscript{{\it l}} diff({\it x, y}); {\it A\textsubscript{L}}, where locking x is allowed but we cannot lock y since it has already been locked earlier ({\it without being unlocked later}). Dummy of this would be: {\it dummy(B)} = lock\textsuperscript{{\it l}} diff({\it x, y}); event Lock\_e({\it lock\textsubscript{l}, diff({\it x, y})}); {\it A\textsubscript{L}}. The success of locking is implied by the occurence of the event Lock\_e even after the translation, satisfied by L([[{\it dummy(B)}]]) and not by R([[{\it dummy(B)}]]). Since the translation is {\it sound}, the event is executed in Tamarin also. So, Lock\_e is executed in the left side but not in the right side. (since snd fails to go ahead) Thus they can be distinguished in Tamarin. 
+
+Thus, Tamarin cannot find a mirror for the L(.) instance since the event Lock\_e has never been executed in the R(.) instance. So, any rule producing/using this fact cannot be mirrored. Thus in translation of {\it B\textsubscript{0}}, we reach a state from where the L(.) instance cannot be mirrored. So on the whole {\it B\textsubscript{0}} cannot satisfy tamarin equivalence.\newline
+
+{\it Note}: We have taken lock as an {\it example} throughout Case 4. A similar {\it proof} follows for unlock with appropriate conditions.
+%\pagebreak%:  breaks a page
+\subsection{Alternate Proof Route} 
+{\it Note 5.3(a): }In Tamarin, fst of a bisystem $S$ is same as L($S$), snd is same as R($S$)\newline
+
+{\bf Lemma 5.3.1: }{\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}, if and only if $[[B_0]]\xRightarrow[\text{}]{\text{tr}}S$ for some state $S$ in Tamarin.\newline
+
+{\bf Proof: }It follows directly from correctness of SAPIC's translation. From the correctness results and Proof of Statement 5.2.2, it follows that if $tr$ moves $B_0$, it is in the trace of $[[B_0]]$ as well and {\it vice versa}. \hfill \hfill $\cdots$ (Lemma 5.3.1 {\it Proved}) \newline
+
+{\bf Lemma 5.3.2: }In Tamarin if a bi system $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, then $snd(S) \xrightarrow[\text{}]{\text{tr}} S''$ and vice versa.\newline
+
+{\bf Proof: }Assume for the sake of contradiction that $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, and $snd(S)$ cannot move on tr. But if this happens, the attacker has found a trace using which he can distinguish $fst$ and $snd$ (since $fst$ will respond to $tr$, but $snd$ will not). Then $S$ cannot be equivalent, which is a {\bf contradiction}.\hfill \hfill $\cdots$ (Lemma 5.3.2 {\it Proved})\newline 
+
+{\bf Lemma 5.3.3: }$fst([[P]])=[[fst(P)]]$ and $snd([[P]])=[[snd(P)]]$. \newline
+
+{\bf Proof:} {\it diff} is translated like a function. So in the translation wherever diff operator occurs, it is translated as it is, without any change (by correctness of SAPIC's translation). $fst([[P]])$ means that after translating $P$ we take the $fst$ argument i.e. replace diff($M, N$) with $M$ in the translation [[$P$]]. $[[fst(P)]]$ means that all occurences of diff($M, N$) are replaced with $M$ in SAPIC itself and then translated. So it will be translated into $fst([[P]])$ since rest of the translation is same as $P$ and then we take $M$ in diff($M, N$). It is like the value of function diff($M, N$) is $M$ and it doesnt matter whether you put the value in SAPIC or in its translation in Tamarin. (Both are same, by correctness) \hfill \hfill $\cdots$ (Lemma 5.3.3 {\it Proved})\newline 
+
+{\it Note 5.3(b): }In Lemma 5.3.2 and 5.3.3 we only show results for $fst$. The $snd$ case is similar.\newline 
+
+{\bf Lemma 5.3.4: }If $P$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $P_1$ then $fst(P)$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $fst(P_1)$ \newline
+
+{\bf Proof:} It follows from the bi-semantics and from the definition of fst and diff. By the rules of the semantics, {\it diff} is treated as a function and functions are unchanged in the reduction by the semantics. So when we use {\it fst(.)} on $P$ it will replace all occurences of {\it diff(M, N)} with M. So on reduction by the same $\ell$, $M$ is reduced as $M$ so it is translated to the $P_1$ with the difference that {\it diff(M, N)} is replaced by $M$, which is nothing but {\it fst($P_1$)} The basic concept is that reduction by labels does not effect functions.   \hfill \hfill $\cdots$ (Lemma 5.3.4 {\it Proved})\newline 
+
+\subsubsection{The Alternate Proof}
+We need to show that if $B_0$ is tamarin equivalent, it is diff equivalent. If $B_0$ is tamarin equivalent, so is dummy($B_0$) (Lemma 5.1.2). If dummy($B_0$) is tamarin equivalent then any $B$ from Definition 4.3.1 (such that {\it dummy(B\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B}) is also tamarin equivalent. 
+
+Assume fst({\it B}) {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$} {\it A}\textsubscript{{\it L}} . By the dummy lemma, we know that fst({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} dummy({\it A}\textsubscript{{\it L}}) (where $\ell'$ contains also the dummy events). 
+
+By the previous lemmas we know that in Tamarin [[fst({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.3.1), and fst([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.3.3), and snd([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.3.2), and [[snd({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.3.3). From there let us try to conclude that the biprocess can move as desired, etc.\newline
+
+$B$ is tamarin equivalent. So by our $dummy$ lemma, $dummy(B)$ is also tamarin equivalent. What that implies is that if $fst([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S'$, then $snd([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S''$. Also we can conclude that $S'$ and $S''$ are mirrors of each other i.e. $\exists$ a tamarin equivalent bisystem $S$ such that L($S$) = $S'$ and R($S$) = $S''$ and [[{\it dummy(B)}]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $S$}. Because if this is not the case then this violates our hypthesis of $dummy(B)$ being tamarin equivalent.
+
+From Lemmas 5.3.1 and 5.3.3 we get that snd({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_2$} for some $B_2$. Since both $snd$ and $fst$ can move, {\it dummy(B)} {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_1$} for some $B_1$. If we can show that fst($B_1$) = $dummy(A_L)$, we are done. 
+
+This is done by Lemma 5.3.4 with $P$ = $dummy(B)$. Using it, we get fst($B_1$) = $dummy(A_L)$. That shows that $dummy(B_0)$ is diff equivalent. (Since the 3rd point in Defintion 4.3.1 is shown by the same proof, replacing fst with snd and 5.2.3 proves the first point). And we know that by the dummy lemma, diff equivalence of dummy implies diff equivalence of $B_0$ also.
+
+
+
+\pagebreak
+
+\subsection{The Proof}
+Let us do a {\it case-by-case analysis} on the three conditions and show that the witness violates tamarin equivalence. [ {\it B} = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) below]: \newline
+
+{\bf Case 1: }$\nu$$\Ea$. fst($\sigma$) $\not\sim$ $\nu$$\Ea$. snd($\sigma$)\newline
+
+{\bf Case 2: }{\it if} fst({\it B}) {$\xrightarrow[\text{}]{\text{$\ell$}}$} {\it A}\textsubscript{{\it L}} then {$\forall$} {\it B\textsubscript{1}} such that 
+  B {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{1}}, fst({\it B\textsubscript{1}}) $\neq$ {\it A}\textsubscript{{\it L}}\newline
+
+{\bf Case 3: }{\it if} snd({\it B}) {$\xrightarrow[\text{}]{\text{$\ell$}}$} {\it C}\textsubscript{{\it L}} then {$\forall$} {\it B\textsubscript{2}} such that 
+  B {$\xrightarrow[\text{}]{\text{$\ell$}}$}{\textsubscript{bi}} {\it B\textsubscript{2}}, snd({\it B\textsubscript{2}}) $\neq$ {\it C}\textsubscript{{\it L}}\newline
+
+For {\bf Case 1}, it follows that {\it B\textsubscript{0}} is not tamarin equivalent from {\bf Lemma 5.2.3}.\newline
+
+For {\bf Case 2}, it follows that {\it B\textsubscript{0}} is not tamarin equivalent from {\bf Lemma 5.2.4}.\newline
+
+For {\bf Case 3}, it follows that {\it B\textsubscript{0}} is not tamarin equivalent from {\bf Lemma 5.2.4}, with {\it fst} being replaced by {\it snd} and {\it vice versa}.\newline
+
+Thus, by proving the {\it contrapositive}, we have proved our {\it conjecture} which we set out to prove at beginning of Section 5.
+
+\pagebreak
+\vspace{8pt}
+\subsection{Earlier Attempts}
+Let us now construct the {\it well-formed trace formula} $\varphi$ such that we include the trace(s) from {\it B\textsubscript{0}} to {\it B} and hence show that the corresppnding tamarin rules can reach [[B]]. Let us make a formula which symbolises the occurences of events. So if we choose {\it tr} such that {\it B\textsubscript{0}} {$\xRightarrow[\text{}]{\text{{\it tr}}}$}\textsubscript{{\it bi}} {\it B} holds, $\varphi$ should say that all events in tr occur ({\it order preserved}) and the others haven't occured. This is done using first-order logic.\\
+
+{\bf Example:} If {\it B\textsubscript{0}} {$\xRightarrow[\text{}]{\text{\{\it {F(n), G\}}}}$}\textsubscript{{\it bi}} {\it B}, set of all events starting from B\textsubscript{0} is \{F(n), G, H, I\} in that order then $\varphi$ = $\exists$ {\it n: msg, i, j: temp.} F({\it n})@{\it i} $\wedge$ G@{\it j} $\wedge$ {\it i$<$j} $\wedge$ $\neg$ ($\exists$ {\it k: temp}. H@{\it k}) $\wedge$ $\neg$($\exists$ {\it m: temp}. I@{\it m}).\newline
+\hspace*{14pt}{\it Note:} As parameters to events, variables of sort {\it msg} can be added appropriately as shown above for event F.\newline\newline
+Set of all events starting from {\it B} is \{H, I\}. Using {\it traces\textsuperscript{pi}} ({\it P}) $\models$\textsuperscript{*} $\varphi$ {\it iff}  {\it traces\textsuperscript{msr}} ([[{\it P}]]) $\models$\textsuperscript{*} [[$\varphi$]]\textsubscript{*} and *=$\exists$, since {\it tr = \{F(n), G\}} satsifisfies $\varphi$, we must have a tr\textsubscript{0} $\epsilon$ {\it traces\textsuperscript{msr}} ([[{\it B\textsubscript{0}}]]) \\satisfying $\varphi$.\newline 
+\hspace*{14pt} Let [[{\it B\textsubscript{0}}]] {$\xRightarrow[\text{}]{\text{tr\textsubscript{0}}}$}\textsubscript{{\it bi}} {\it S}, where {\it S} is a bi-system. {\it S} has the events H and I yet to occur (follows from satisfaction of $\varphi$). We know that only [[{\it B}]] can be S. (it follows from the {\it \underline{Correctness of the Translation}} that the events left to be covered {\it (modulo the reserved facts)} have to be exactly same only in {\it B} and [[{\it B}]]).\newline
+
+\vspace{6pt}
+{\bf Thus}, it successfully follows that the tamarin rules can move to [[B]], as we had desired. Now, we know that {\it B} violates atleast one of the 3 conditions in the {\it definition of diff equivalence}. 
+
+
+\end{document}

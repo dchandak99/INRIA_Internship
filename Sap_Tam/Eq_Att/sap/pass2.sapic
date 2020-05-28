@@ -1,0 +1,25 @@
+theory pass2
+
+begin
+
+builtins: asymmetric-encryption, symmetric-encryption, xor
+functions: f1/4,f2/4,f3/4,g/4, A/0, B/0
+
+
+
+let P = out(nA); out(nB); out(nS);
+    let Y1 = f1(nS, nB, A, pwB) in let Y2 = f2(nS, nB, A, pwB) 
+    in let Y3 = f3(nS, nB, A, pwB) in
+    let Z1 = f1(nS, nA, B, pwA) in let Z2 = f2(nS, nA, B, pwA) 
+    in let Z3 = f3(nS, nA, B, pwA) 
+    in (out(Y1 ⊕ Z1); out(Y2 ⊕ Z2);
+    out(Y3 ⊕ Z3); out(g(Z1, Z2, Z3, pwB)); out(Z3);
+    out(diff(<pfresh1, pfresh2>, <pwA, pwB>)))
+
+    
+new pwA; new pwB; new pfresh1; new pfresh2; new nA; new nB; new nS;
+P 
+
+
+
+end

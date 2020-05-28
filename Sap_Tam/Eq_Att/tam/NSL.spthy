@@ -1,0 +1,109 @@
+theory NSL
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+builtins: asymmetric-encryption
+
+functions: penc/3, pdec/2
+
+equations: pdec(penc(m, r, pk(skk)), skk)=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule new_skA_: // [process=top-level] new skA 
+ [State_(), Fr(skA)] --[]-> [State_1(skA)]
+
+rule new_skB_1: // [process=top-level] new skB 
+ [State_1(skA), Fr(skB)] --[]-> [State_11(skA, skB)]
+
+rule new_Nb_11: // [process=top-level] new Nb 
+ [State_11(skA, skB), Fr(Nb)] --[]-> [State_111(Nb, skA, skB)]
+
+rule new_r_111: // [process=top-level] new r 
+ [State_111(Nb, skA, skB), Fr(r)] --[]-> [State_1111(Nb, r, skA, skB)]
+
+rule new_k_1111: // [process=top-level] new k 
+ [State_1111(Nb, r, skA, skB), Fr(k)] --[]-> [State_11111(Nb, k, r, skA, skB)]
+
+rule Par_11111: // [process=top-level] Par 
+ [State_11111(Nb, k, r, skA, skB)] --[]-> [State_111111(Nb, k, r, skA, skB), State_111112(Nb, k, r, skA, skB)]
+
+rule in_Na_1_111111: // [process=top-level] in Na_1 
+ [State_111111(Nb, k, r, skA, skB), In(Na_1)] --[]-> [State_1111111(Na_1, Nb, k, r, skA, skB)]
+
+rule in_Na_2_1111111: // [process=top-level] in Na_2 
+ [State_1111111(Na_1, Nb, k, r, skA, skB), In(Na_2)] --[]-> [State_11111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule event_HonestApkskA_11111111: // [process=top-level] event HonestA(pk(skA)) 
+ [State_11111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), HonestA(pk(skA))]-> [State_111111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule out_pkskA_111111111: // [process=top-level] out pk(skA) 
+ [State_111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> [State_1111111111(Na_1, Na_2, Nb, k, r, skA, skB), Out(pk(skA))]
+
+rule event_OUT_I_1penc_diffNa_1_Na_2_pkskA_r_pkskB_1111111111: // [process=top-level] event OUT_I_1(penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB))) 
+ [State_1111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), OUT_I_1(penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)))]-> [State_11111111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule out_penc_diffNa_1_Na_2_pkskA_r_pkskB_11111111111: // [process=top-level] out penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)) 
+ [State_11111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> [State_111111111111(Na_1, Na_2, Nb, k, r, skA, skB), Out(penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)))]
+
+rule in_aenc_diffNa_1_Na_2_Nb_pkskB_pkskA_111111111111: // [process=top-level] in aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)) 
+ [State_111111111111(Na_1, Na_2, Nb, k, r, skA, skB), In(aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)))] --[]-> [State_1111111111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule event_IN_I_2_nrNb_aenc_diffNa_1_Na_2_Nb_pkskB_pkskA_1111111111111: // [process=top-level] event IN_I_2_nr(Nb, aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA))) 
+ [State_1111111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), IN_I_2_nr(Nb, aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)))]-> [State_11111111111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule out_aenc_Nb_k_pkskB_11111111111111: // [process=top-level] out aenc(<Nb, k>, pk(skB)) 
+ [State_11111111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> [State_111111111111111(Na_1, Na_2, Nb, k, r, skA, skB), Out(aenc(<Nb, k>, pk(skB)))]
+
+rule event_SessionApkskA_pkskB_k_111111111111111: // [process=top-level] event SessionA(pk(skA), pk(skB), k) 
+ [State_111111111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), SessionA(pk(skA), pk(skB), k)]-> [State_1111111111111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule Zero_1111111111111111: // [process=top-level] Zero 
+ [State_1111111111111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> []
+
+rule event_HonestBpkskB_111112: // [process=top-level] event HonestB(pk(skB)) 
+ [State_111112(Nb, k, r, skA, skB)] --[Event(), HonestB(pk(skB))]-> [State_1111121(Nb, k, r, skA, skB)]
+
+rule out_pkskB_1111121: // [process=top-level] out pk(skB) 
+ [State_1111121(Nb, k, r, skA, skB)] --[]-> [State_11111211(Nb, k, r, skA, skB), Out(pk(skB))]
+
+rule in_penc_diffNa_1_Na_2_pkskA_r_pkskB_11111211: // [process=top-level] in penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)) 
+ [State_11111211(Nb, k, r, skA, skB), In(penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)))] --[]-> [State_111112111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule event_IN_R_1_nidiffNa_1_Na_2_penc_diffNa_1_Na_2_pkskA_r_pkskB_111112111: // [process=top-level] event IN_R_1_ni(diff(Na_1, Na_2), penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB))) 
+ [State_111112111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), IN_R_1_ni(diff(Na_1, Na_2), penc(<diff(Na_1, Na_2), pk(skA)>, r, pk(skB)))]-> [State_1111121111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule event_OUT_R_1aenc_diffNa_1_Na_2_Nb_pkskB_pkskA_1111121111: // [process=top-level] event OUT_R_1(aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA))) 
+ [State_1111121111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), OUT_R_1(aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)))]-> [State_11111211111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule out_aenc_diffNa_1_Na_2_Nb_pkskB_pkskA_11111211111: // [process=top-level] out aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)) 
+ [State_11111211111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> [State_111112111111(Na_1, Na_2, Nb, k, r, skA, skB), Out(aenc(<diff(Na_1, Na_2), Nb, pk(skB)>, pk(skA)))]
+
+rule in_aenc_Nb_k_pkskB_111112111111: // [process=top-level] in aenc(<Nb, k>, pk(skB)) 
+ [State_111112111111(Na_1, Na_2, Nb, k, r, skA, skB), In(aenc(<Nb, k>, pk(skB)))] --[]-> [State_1111121111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule event_SessionBpkskA_pkskB_k_1111121111111: // [process=top-level] event SessionB(pk(skA), pk(skB), k) 
+ [State_1111121111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[Event(), SessionB(pk(skA), pk(skB), k)]-> [State_11111211111111(Na_1, Na_2, Nb, k, r, skA, skB)]
+
+rule Zero_11111211111111: // [process=top-level] Zero 
+ [State_11111211111111(Na_1, Na_2, Nb, k, r, skA, skB)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+lemma sanity1 : exists-trace
+"	Ex pka pkb k #t1. SessionA(pka, pkb, k) @ t1"
+
+lemma sanity2 : exists-trace
+"	Ex pka pkb k #t1. SessionB(pka, pkb, k) @ t1"
+
+lemma secrecy :
+"	not( Ex pka pkb k #t1 #t2. SessionA(pka, pkb, k) @ t1 & K(k) @ t2 & ( Ex #i. HonestA(pka) @ i ) & ( Ex #i. HonestB(pkb) @ i ) )"
+
+end

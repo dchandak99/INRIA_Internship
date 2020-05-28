@@ -1,0 +1,61 @@
+theory ChannelsTestThree
+begin
+
+functions: rep/2 [private], check_rep/2, get_rep/1
+equations: check_rep(rep(m,loc),loc)=m, get_rep(rep(m,loc))=m
+
+//heuristic: p /* heuristic for SAPIC */
+
+rule Init_: // [process=top-level] Init 
+ [] --[Init()]-> [State_()]
+
+rule Par_: // [process=top-level] Par 
+ [State_()] --[]-> [State_1(), State_2()]
+
+rule in_c_a_0_1: // [process=top-level] in 'c',a, 0 
+ [State_1(), In(<'c', a>)] --[ChannelInEvent(<'c', a>)]-> [State_11(a)]
+
+rule in_c_a_1_1: // [process=top-level] in 'c',a, 1 
+ [State_1(), Message('c',a)] --[]-> [Ack('c',a), State_11(a)]
+
+rule in_c_b_0_11: // [process=top-level] in 'c',b, 0 
+ [State_11(a), In(<'c', b>)] --[ChannelInEvent(<'c', b>)]-> [State_111(a, b)]
+
+rule in_c_b_1_11: // [process=top-level] in 'c',b, 1 
+ [State_11(a), Message('c',b)] --[]-> [Ack('c',b), State_111(a, b)]
+
+rule out_c_diffa_b_0_111 [color=#569DC0]: // [process=P] out 'c',diff(a, b), 0 
+ [State_111(a, b), In('c')] --[ChannelInEvent('c')]-> [Out(diff(a, b)), State_1111(a, b)]
+
+rule out_c_diffa_b_1_111 [color=#569DC0]: // [process=P] out 'c',diff(a, b), 1 
+ [State_111(a, b)] --[]-> [Semistate_111(a, b), Message('c',diff(a, b))]
+
+rule out_c_diffa_b_2_111 [color=#569DC0]: // [process=P] out 'c',diff(a, b), 2 
+ [Semistate_111(a, b), Ack('c',diff(a, b))] --[]-> [State_1111(a, b)]
+
+rule Zero_1111 [color=#569DC0]: // [process=P] Zero 
+ [State_1111(a, b)] --[]-> []
+
+rule in_c_x_0_2 [color=#2CD719]: // [process=Q] in 'c',x, 0 
+ [State_2(), In(<'c', x>)] --[ChannelInEvent(<'c', x>)]-> [State_21(x)]
+
+rule in_c_x_1_2 [color=#2CD719]: // [process=Q] in 'c',x, 1 
+ [State_2(), Message('c',x)] --[]-> [Ack('c',x), State_21(x)]
+
+rule event_Receivedx_21 [color=#2CD719]: // [process=Q] event Received(x) 
+ [State_21(x)] --[Event(), Received(x)]-> [State_211(x)]
+
+rule Zero_211 [color=#2CD719]: // [process=Q] Zero 
+ [State_211(x)] --[]-> []
+
+
+restriction single_session: // for a single session
+    "All #i #j. Init()@i & Init()@j ==> #i=#j"
+
+lemma not_secret : exists-trace
+"	Ex #i #j x. Received(x) @ i & K(x) @ j"
+
+lemma internal_comm : exists-trace
+"	Ex x #i. ( Received(x) @ i & All y #j. K(y) @ j ==> not( x = y ) )"
+
+end

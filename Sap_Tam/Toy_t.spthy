@@ -1,0 +1,95 @@
+theory Toy
+begin
+
+functions: h/1, aenc/2, adec/2, pk/1
+equations: adec(aenc(m, pk(k)), k) = m
+builtins: hashing, asymmetric-encryption
+
+// Registering a public key
+rule Register_pk:
+  [ Fr(~ltk) ]
+  -->
+  [ !Ltk($A, ~ltk), !Pk($A, pk(~ltk)) ]
+
+rule Get_pk:
+  [ !Pk(A, pubkey) ]
+  -->
+  [ Out(pubkey) ]
+
+rule Reveal_ltk:
+    [ !Ltk(A, ltk) ]
+  --[ LtkReveal(A) ]->
+    [ Out(ltk) ]
+
+rule Client_init:
+    [ Fr(~k)         // choose fresh key
+    , !Pk($S, pkS)   // lookup public-key 
+    ]
+  -->
+    [ Client_init( $S, ~k )    
+    , Out( aenc(~k,pkS ) ) 
+    ]
+
+rule Client_rec:
+    [ Client_init(S, k)   // Retrieve server and session key 
+    , In( h(k) )       
+    ]
+  --[ Record_sess( S, k ) ]-> 
+    []                     
+
+rule Serv_1:
+    [ !Ltk($S, ~ltkS)                          // lookup the private-key
+    , In( request )                            // receive a request
+    ]
+  --[ Ans_req($S, adec(request, ~ltkS))  
+    ]->
+    [ Out( h(adec(request, ~ltkS))) ]   
+                                               
+
+
+lemma Client_session_key_secrecy:
+  " 
+    not(
+      Ex S k #i #j.
+        /* client has set up a session key 'k' with a server'S' */
+        Record_sess(S, k) @ #i
+        /* and the adversary knows 'k' */
+      & K(k) @ #j
+      & not(Ex #r. LtkReveal(S) @ r)
+    )
+  "
+
+
+lemma Client_auth:
+  " 
+    ( All S k #i.  Record_sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a)
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_auth_injective:
+  "
+    ( All S k #i.  Record_sess(S, k) @ #i
+       ==>
+         /* there is a server that answered the request */
+       ( (Ex #a. Ans_req(S, k) @ a
+           /* and there is no other client that had the same request */
+           & (All #j. Record_sess(S, k) @ #j ==> #i = #j)
+       )
+       | (Ex #r. LtkReveal(S) @ r & r < i)
+       )
+    )
+  "
+
+lemma Client_session_key_honest_setup:
+  exists-trace
+  " Ex S k #i.
+        Record_sess(S, k) @ #i
+      & not(Ex #r. LtkReveal(S) @ r)
+  "
+
+end

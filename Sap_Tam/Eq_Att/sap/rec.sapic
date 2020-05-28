@@ -1,0 +1,7 @@
+theory rec
+
+begin
+
+new a; new b; out('c', diff(a, b)) || in(c,x) 
+
+end
