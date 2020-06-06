@@ -170,9 +170,11 @@ We can extend this to traces as well. Let us define a new set of traces using th
 \section {Connecting Tamarin and SAPIC}
 \vspace{8pt}
 {\bf Conjecture:} Let {\it B} be a biprocess in SAPIC. If {\it B} is {\it tamarin equivalent} then {\it B} is {\it diff equivalent.}\newline\newline
-{\bf Contrapositive: }{\it Let B\textsubscript{0} is a SAPIC biprocess. Assume B\textsubscript{0} is not diff equivalent. This provides a witness i.e. $\exists$ tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0}) such that the biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) satisfying B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B, violates atleast one of the above 3 conditions in defintion of diff equivalence. If we can show that this witness violates tamarin equivalence, we are done.}\newline
+{\bf Contrapositive: }{\it Let B\textsubscript{0} is a SAPIC biprocess. Assume B\textsubscript{0} is not diff equivalent. This provides a witness i.e. $\exists$ tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0}) such that the biprocess B = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) satisfying B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B, violates atleast one of the above 3 conditions in defintion of diff equivalence. If we can show that this witness violates tamarin equivalence, we are done.}\newline\newline
+{\bf High Level Overview: }Assume $dummy(B_0)$ tamarin equivalent (so, $B_0$ is tamarin equivalent from Lemma 5.1.2) and show that $dummy(B_0)$ is diff equivalent (so, $B_0$ is diff equivalent from Lemma 5.1.1).
 
-Firstly, we will try to argue that tamarin rules can "move" to [[B]], using existing results on SAPIC trace properties. (can be found \href{https://hal.archives-ouvertes.fr/hal-01337409v2/document}{\it {here}})\newline
+We will use existing results on SAPIC trace properties. (can be found \href{https://hal.archives-ouvertes.fr/hal-01337409v2/document}{\it {here}})
+
 \subsection{Dummy Events}
 
 To avoid loss of information, we introduce {\bf dummy events} to unhide all the silent actions. We then try to construct a {\it well formed trace formula $\varphi$}, and use the result:
@@ -227,7 +229,7 @@ So for any tr\textsubscript{1} $\epsilon$ {\it traces\textsuperscript{pi}(B\text
 
 It can be argued that from $dummy(B_0)$ we can move to $dummy(B)$ because the events do not influence how the process can evolve, and we know that $B_0$ can move to $B$ and the traces will obviosuly just differ by the dummy event labels.\newline
 
-{\it Alternate}: Now, if we choose tr\textsubscript{1} and tr\textsubscript{2} as indicated in (1) and let dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} {\it C}, then from all the above arguments it follows that {\it C} will have all contents of B since tr\textsubscript{2} is \underline{{\it upto}} tr\textsubscript{1} and \\{\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B}. Plus, it will have some dummy events since it has come from {\it dummy(B\textsubscript{0})}. \\Since {\it C} has {\it B} preserved in it, dummy events of actions in {\it B} are not in tr\textsubscript{2} (else {\it C} would have reduced further). So {\it C} is B with its dummy events. {\it C = dummy(B)} \hfill \hfill (Step 1 Part 1 {\it Proved})  \newline
+\textcolor{blue}{{\it Alternate but longer}}: Now, if we choose tr\textsubscript{1} and tr\textsubscript{2} as indicated in (1) and let dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} {\it C}, then from all the above arguments it follows that {\it C} will have all contents of B since tr\textsubscript{2} is \underline{{\it upto}} tr\textsubscript{1} and \\{\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B}. Plus, it will have some dummy events since it has come from {\it dummy(B\textsubscript{0})}. \\Since {\it C} has {\it B} preserved in it, dummy events of actions in {\it B} are not in tr\textsubscript{2} (else {\it C} would have reduced further). So {\it C} is B with its dummy events. {\it C = dummy(B)} \hfill \hfill (Step 1 Part 1 {\it Proved})  \newline
 
 {\it Part 2}: Now we show that if dummy({\it B}\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr\textsubscript{2}}}$}\textsubscript{bi} dummy({\it B}) then {\it B}\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr\textsubscript{1}}}$}\textsubscript{bi} {\it B} where tr\textsubscript{1} = tr\textsubscript{2} up to dummy events.\newline
 
@@ -281,9 +283,11 @@ Let us establish a few useful results:
 
 {\bf Lemma 5.2.1: }If {\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}, then the tamarin rules can also \hspace*{100pt} "{\it move}" to [[{\it B}]]. \newline
 
-{\it Note 5.2(a):} By "\underline{{\it move}}", we mean that while executing [[{\it B\textsubscript{0}}]] we reach a state such that the remaining actions (including {\it silent actions}) are exactly the same as the actions in [[{\it B}]] (maybe with different names or paramters and ignoring the Init()). We cannot reach [[{\it B}]] exactly since it has a different Init(), different representations of actions, their parameters and different state numbers. We always ignore the reserved facts since they are not actually actions in SAPIC, they are introduced in the translation.\newline
+{\it Note 5.2(a):} By "\underline{{\it move}}", we mean that while executing [[{\it B\textsubscript{0}}]] we reach a state such that the remaining actions (including {\it silent actions}) are exactly the same as the actions in [[{\it B}]] (maybe with different names or paramters and ignoring the Init()). We cannot reach [[{\it B}]] exactly since it has a different Init(), different representations of actions, their parameters and different state numbers. We always ignore the reserved facts since they are not actually actions in SAPIC, they are introduced in the translation.
 
-{\bf Proof }\newline
+\textcolor{blue}{This definition of \underline{{\it"move"}} is informal and can be bettered, maybe by diving into the details of the translation. For this reason, you should have a look at the Alternate Proof in Section 5.4. Also, this proof is overall much longer. So for a shorter and concise proof refer to Section 5.4}\newline
+
+{\bf Proof }
 
 {\bf Statement 5.2.2}: If a step is executed in SAPIC on {\it B}, the same execution with the same step {\it(steps = labels plus silent actions which have no mark in the trace)} can be done in Tamarin. \newline
 
@@ -334,6 +338,7 @@ Due to the lack of a mirror in the above case, we can conclude that {\it B\texts
   \vspace{-4pt}
   \item {\it lock/unlock} failure on one side, success on the other\newline
 \end{enumerate}  
+\textcolor{blue}{There is another case. Take for example 2 private channels. One becoming private due to out(c). So this essentially becomes now a subset of the example mentioned in Case 3 below.}     \newline
 
 Let us show that in each case, we can prove that {\it B\textsubscript{0}} is not Tamarin equivalent.\newline
 %\pagebreak
@@ -372,45 +377,10 @@ From Lemma 5.2.1 and by correctness, we know that fst(B) can move to {\it A\text
 
 Thus, Tamarin cannot find a mirror for the L(.) instance since the event Lock\_e has never been executed in the R(.) instance. So, any rule producing/using this fact cannot be mirrored. Thus in translation of {\it B\textsubscript{0}}, we reach a state from where the L(.) instance cannot be mirrored. So on the whole {\it B\textsubscript{0}} cannot satisfy tamarin equivalence.\newline
 
-{\it Note}: We have taken lock as an {\it example} throughout Case 4. A similar {\it proof} follows for unlock with appropriate conditions.
+{\it Note}: We have taken lock as an {\it example} throughout Case 4. A similar {\it proof} follows for unlock with appropriate conditions.\newline
+
+{\bf Remark 5.2.5 for the proof}: Throughout the proof, we have proven things for $B_0$ by assuming annotation by dummy events. This is not clear. So what it means is that we are actually working on $dummy(B_0)$, due to which the annotation is not necessary for any case. They are already annotated. So our proof shows that if $dummy(B_0)$ is tamarin equivalent, it is diff equivalent. This can be extended to our conjecture by the High Level Overview described at the beginning of Section 5. So (by using Lemmas 5.1.1 and 5.1.2), $dummy(B_0)$ is tamarin equivalent iff $B_0$ is tamarin equivalent and $dummy(B_0)$ is diff equivalent iff $B_0$ is diff equivalent. Hence, we have proven the conjecture.
 %\pagebreak%:  breaks a page
-\subsection{Alternate Proof Route} 
-{\it Note 5.3(a): }In Tamarin, fst of a bisystem $S$ is same as L($S$), snd is same as R($S$)\newline
-
-{\bf Lemma 5.3.1: }{\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}, if and only if $[[B_0]]\xRightarrow[\text{}]{\text{tr}}S$ for some state $S$ in Tamarin.\newline
-
-{\bf Proof: }It follows directly from correctness of SAPIC's translation. From the correctness results and Proof of Statement 5.2.2, it follows that if $tr$ moves $B_0$, it is in the trace of $[[B_0]]$ as well and {\it vice versa}. \hfill \hfill $\cdots$ (Lemma 5.3.1 {\it Proved}) \newline
-
-{\bf Lemma 5.3.2: }In Tamarin if a bi system $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, then $snd(S) \xrightarrow[\text{}]{\text{tr}} S''$ and vice versa.\newline
-
-{\bf Proof: }Assume for the sake of contradiction that $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, and $snd(S)$ cannot move on tr. But if this happens, the attacker has found a trace using which he can distinguish $fst$ and $snd$ (since $fst$ will respond to $tr$, but $snd$ will not). Then $S$ cannot be equivalent, which is a {\bf contradiction}.\hfill \hfill $\cdots$ (Lemma 5.3.2 {\it Proved})\newline 
-
-{\bf Lemma 5.3.3: }$fst([[P]])=[[fst(P)]]$ and $snd([[P]])=[[snd(P)]]$. \newline
-
-{\bf Proof:} {\it diff} is translated like a function. So in the translation wherever diff operator occurs, it is translated as it is, without any change (by correctness of SAPIC's translation). $fst([[P]])$ means that after translating $P$ we take the $fst$ argument i.e. replace diff($M, N$) with $M$ in the translation [[$P$]]. $[[fst(P)]]$ means that all occurences of diff($M, N$) are replaced with $M$ in SAPIC itself and then translated. So it will be translated into $fst([[P]])$ since rest of the translation is same as $P$ and then we take $M$ in diff($M, N$). It is like the value of function diff($M, N$) is $M$ and it doesnt matter whether you put the value in SAPIC or in its translation in Tamarin. (Both are same, by correctness) \hfill \hfill $\cdots$ (Lemma 5.3.3 {\it Proved})\newline 
-
-{\it Note 5.3(b): }In Lemma 5.3.2 and 5.3.3 we only show results for $fst$. The $snd$ case is similar.\newline 
-
-{\bf Lemma 5.3.4: }If $P$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $P_1$ then $fst(P)$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $fst(P_1)$ \newline
-
-{\bf Proof:} It follows from the bi-semantics and from the definition of fst and diff. By the rules of the semantics, {\it diff} is treated as a function and functions are unchanged in the reduction by the semantics. So when we use {\it fst(.)} on $P$ it will replace all occurences of {\it diff(M, N)} with M. So on reduction by the same $\ell$, $M$ is reduced as $M$ so it is translated to the $P_1$ with the difference that {\it diff(M, N)} is replaced by $M$, which is nothing but {\it fst($P_1$)} The basic concept is that reduction by labels does not effect functions.   \hfill \hfill $\cdots$ (Lemma 5.3.4 {\it Proved})\newline 
-
-\subsubsection{The Alternate Proof}
-We need to show that if $B_0$ is tamarin equivalent, it is diff equivalent. If $B_0$ is tamarin equivalent, so is dummy($B_0$) (Lemma 5.1.2). If dummy($B_0$) is tamarin equivalent then any $B$ from Definition 4.3.1 (such that {\it dummy(B\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B}) is also tamarin equivalent. 
-
-Assume fst({\it B}) {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$} {\it A}\textsubscript{{\it L}} . By the dummy lemma, we know that fst({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} dummy({\it A}\textsubscript{{\it L}}) (where $\ell'$ contains also the dummy events). 
-
-By the previous lemmas we know that in Tamarin [[fst({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.3.1), and fst([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.3.3), and snd([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.3.2), and [[snd({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.3.3). From there let us try to conclude that the biprocess can move as desired, etc.\newline
-
-$B$ is tamarin equivalent. So by our $dummy$ lemma, $dummy(B)$ is also tamarin equivalent. What that implies is that if $fst([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S'$, then $snd([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S''$. Also we can conclude that $S'$ and $S''$ are mirrors of each other i.e. $\exists$ a tamarin equivalent bisystem $S$ such that L($S$) = $S'$ and R($S$) = $S''$ and [[{\it dummy(B)}]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $S$}. Because if this is not the case then this violates our hypthesis of $dummy(B)$ being tamarin equivalent.
-
-From Lemmas 5.3.1 and 5.3.3 we get that snd({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_2$} for some $B_2$. Since both $snd$ and $fst$ can move, {\it dummy(B)} {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_1$} for some $B_1$. If we can show that fst($B_1$) = $dummy(A_L)$, we are done. 
-
-This is done by Lemma 5.3.4 with $P$ = $dummy(B)$. Using it, we get fst($B_1$) = $dummy(A_L)$. That shows that $dummy(B_0)$ is diff equivalent. (Since the 3rd point in Defintion 4.3.1 is shown by the same proof, replacing fst with snd and 5.2.3 proves the first point). And we know that by the dummy lemma, diff equivalence of dummy implies diff equivalence of $B_0$ also.
-
-
-
-\pagebreak
 
 \subsection{The Proof}
 Let us do a {\it case-by-case analysis} on the three conditions and show that the witness violates tamarin equivalence. [ {\it B} = ($\Ea$, $\Sa$, P, $\sigma$, $\Lb$) below]: \newline
@@ -432,17 +402,46 @@ For {\bf Case 3}, it follows that {\it B\textsubscript{0}} is not tamarin equiva
 Thus, by proving the {\it contrapositive}, we have proved our {\it conjecture} which we set out to prove at beginning of Section 5.
 
 \pagebreak
-\vspace{8pt}
-\subsection{Earlier Attempts}
-Let us now construct the {\it well-formed trace formula} $\varphi$ such that we include the trace(s) from {\it B\textsubscript{0}} to {\it B} and hence show that the corresppnding tamarin rules can reach [[B]]. Let us make a formula which symbolises the occurences of events. So if we choose {\it tr} such that {\it B\textsubscript{0}} {$\xRightarrow[\text{}]{\text{{\it tr}}}$}\textsubscript{{\it bi}} {\it B} holds, $\varphi$ should say that all events in tr occur ({\it order preserved}) and the others haven't occured. This is done using first-order logic.\\
+\subsection{Alternate Proof Route} 
+{\it Note 5.4(a): }In Tamarin, fst of a bisystem $S$ is same as L($S$), snd is same as R($S$)\newline
 
-{\bf Example:} If {\it B\textsubscript{0}} {$\xRightarrow[\text{}]{\text{\{\it {F(n), G\}}}}$}\textsubscript{{\it bi}} {\it B}, set of all events starting from B\textsubscript{0} is \{F(n), G, H, I\} in that order then $\varphi$ = $\exists$ {\it n: msg, i, j: temp.} F({\it n})@{\it i} $\wedge$ G@{\it j} $\wedge$ {\it i$<$j} $\wedge$ $\neg$ ($\exists$ {\it k: temp}. H@{\it k}) $\wedge$ $\neg$($\exists$ {\it m: temp}. I@{\it m}).\newline
-\hspace*{14pt}{\it Note:} As parameters to events, variables of sort {\it msg} can be added appropriately as shown above for event F.\newline\newline
-Set of all events starting from {\it B} is \{H, I\}. Using {\it traces\textsuperscript{pi}} ({\it P}) $\models$\textsuperscript{*} $\varphi$ {\it iff}  {\it traces\textsuperscript{msr}} ([[{\it P}]]) $\models$\textsuperscript{*} [[$\varphi$]]\textsubscript{*} and *=$\exists$, since {\it tr = \{F(n), G\}} satsifisfies $\varphi$, we must have a tr\textsubscript{0} $\epsilon$ {\it traces\textsuperscript{msr}} ([[{\it B\textsubscript{0}}]]) \\satisfying $\varphi$.\newline 
-\hspace*{14pt} Let [[{\it B\textsubscript{0}}]] {$\xRightarrow[\text{}]{\text{tr\textsubscript{0}}}$}\textsubscript{{\it bi}} {\it S}, where {\it S} is a bi-system. {\it S} has the events H and I yet to occur (follows from satisfaction of $\varphi$). We know that only [[{\it B}]] can be S. (it follows from the {\it \underline{Correctness of the Translation}} that the events left to be covered {\it (modulo the reserved facts)} have to be exactly same only in {\it B} and [[{\it B}]]).\newline
+{\bf Lemma 5.4.1: }{\it B\textsubscript{0} {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B} for some {\it tr $\epsilon$ traces\textsuperscript{pi}(B\textsubscript{0})}, if and only if $[[B_0]]\xRightarrow[\text{}]{\text{tr}}S$ for some state $S$ in Tamarin.\newline
 
-\vspace{6pt}
-{\bf Thus}, it successfully follows that the tamarin rules can move to [[B]], as we had desired. Now, we know that {\it B} violates atleast one of the 3 conditions in the {\it definition of diff equivalence}. 
+{\bf Proof: }It follows directly from correctness of SAPIC's translation. From the correctness results and Proof of Statement 5.2.2, it follows that if $tr$ moves $B_0$, it is in the trace of $[[B_0]]$ as well and {\it vice versa}. \hfill \hfill $\cdots$ (Lemma 5.4.1 {\it Proved}) \newline
+
+{\bf Lemma 5.4.2: }In Tamarin if a bi system $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, then $snd(S) \xrightarrow[\text{}]{\text{tr}} S''$ and vice versa.\newline
+
+{\bf Proof: }Assume for the sake of contradiction that $S$ is equivalent and $fst(S) \xrightarrow[\text{}]{\text{tr}} S'$, and $snd(S)$ cannot move on tr. But if this happens, the attacker has found a trace using which he can distinguish $fst$ and $snd$ (since $fst$ will respond to $tr$, but $snd$ will not). Then $S$ cannot be equivalent, which is a {\bf contradiction}.\hfill \hfill $\cdots$ (Lemma 5.4.2 {\it Proved})\newline 
+
+{\bf Lemma 5.4.3: }$fst([[P]])=[[fst(P)]]$ and $snd([[P]])=[[snd(P)]]$. \newline
+
+{\bf Proof:} {\it diff} is translated like a function. So in the translation wherever diff operator occurs, it is translated as it is, without any change (by correctness of SAPIC's translation). $fst([[P]])$ means that after translating $P$ we take the $fst$ argument i.e. replace diff($M, N$) with $M$ in the translation [[$P$]]. $[[fst(P)]]$ means that all occurences of diff($M, N$) are replaced with $M$ in SAPIC itself and then translated. So it will be translated into $fst([[P]])$ since rest of the translation is same as $P$ and then we take $M$ in diff($M, N$). It is like the value of function diff($M, N$) is $M$ and it doesnt matter whether you put the value in SAPIC or in its translation in Tamarin. (Both are same, by correctness) \hfill \hfill $\cdots$ (Lemma 5.4.3 {\it Proved})\newline 
+
+{\it Note 5.4(b): }In Lemma 5.4.2 and 5.4.3 we only show results for $fst$. The $snd$ case is similar.\newline 
+
+{\bf Lemma 5.4.4: }If $P$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $P_1$ then $fst(P)$ {$\xrightarrow[\text{}]{\text{$\ell$}}$} $fst(P_1)$ \newline
+
+{\bf Proof:} It follows from the bi-semantics and from the definition of fst and diff. By the rules of the semantics, {\it diff} is treated as a function and functions are unchanged in the reduction by the semantics. So when we use {\it fst(.)} on $P$ it will replace all occurences of {\it diff(M, N)} with M. So on reduction by the same $\ell$, $M$ is reduced as $M$ so it is translated to the $P_1$ with the difference that {\it diff(M, N)} is replaced by $M$, which is nothing but {\it fst($P_1$)} The basic concept is that reduction by labels does not effect functions.   \hfill \hfill $\cdots$ (Lemma 5.4.4 {\it Proved})\newline 
+
+{\bf Lemma 5.4.5: }If snd({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_2$} and fst({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_1$} $\exists$ $B_3$ {\it dummy(B)} {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_3$} i.e. if both $fst$ and $snd$ can of dummy(B) can move on a label $\ell'$ including the dummy events, then dummy(B) can also move with $\ell'$.\newline
+
+{\bf Proof:} From the 4 cases in Lemma 5.2.4, it is clear that those are the cases where if both $fst$ and $snd$ of a biprocess move, it is possible that the biprocess itself may not move. This is essentially due to the fact that $fst$ and $snd$ move differently in those cases. If we can show that this cannot happen in our Lemma (with the dummy events), we are done. Note that $\ell'$ contains dummy events.
+
+Let us assume for the sake of contradiciton that for any of the 4 cases that the lemma is not true. Example: {\it if then else} (This can be easily extended to all 4 cases since we are talking about the events in the 2 branches- it does not matter which case). So if the lemma is not true it means that in $fst$ event Pred\_e\textsubscript{pr} was executed, while on the $snd$ Pred\_e\textsubscript{not\_pr} was executed (or {\it vice-versa}). But, if this was the case, then the labels for both the transitions would have been different since dummy events are included in $\ell'$, but we have the same label $\ell'$ for both. Hence by {\bf Contradiction}, those cases cannot occur here. \hfill \hfill $\cdots$ (Lemma 5.4.5 {\it Proved})
+
+
+\subsubsection{The Alternate Proof}
+We need to show that if $B_0$ is tamarin equivalent, it is diff equivalent. If $B_0$ is tamarin equivalent, so is dummy($B_0$) (Lemma 5.1.2). If dummy($B_0$) is tamarin equivalent then any $B$ from Definition 4.3.1 (such that {\it dummy(B\textsubscript{0}) {$\xRightarrow[\text{}]{\text{tr}}$}\textsubscript{bi} B}) is also tamarin equivalent. 
+
+Assume fst({\it B}) {$\xrightarrow[\text{}]{\text{remove($\ell$)}}$} {\it A}\textsubscript{{\it L}} . By proof in the dummy lemma, we know that fst({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} dummy({\it A}\textsubscript{{\it L}}) (where $\ell'$ contains also the dummy events). 
+
+By the previous lemmas we know that in Tamarin [[fst({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.4.1), and fst([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S$ (from Lemma 5.4.3), and snd([[{\it dummy(B)}]]) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.4.2), and [[snd({\it dummy(B)})]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} $S'$ (from Lemma 5.4.3). From there let us try to conclude that the biprocess can move as desired, etc.\newline
+
+$B$ is tamarin equivalent. So by our $dummy$ lemma, $dummy(B)$ is also tamarin equivalent. What that implies is that if $fst([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S'$, then $snd([[dummy(B)]]) \xrightarrow[\text{}]{\text{$\ell'$}} S''$. Also we can conclude that $S'$ and $S''$ are mirrors of each other i.e. $\exists$ a tamarin equivalent bisystem $S$ such that L($S$) = $S'$ and R($S$) = $S''$ and [[{\it dummy(B)}]] {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $S$}. Because if this is not the case then this violates our hypthesis of $dummy(B)$ being tamarin equivalent.
+
+From Lemmas 5.4.1 and 5.4.3 we get that snd({\it dummy(B)}) {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_2$} for some $B_2$. Since both $snd$ and $fst$ can move, {\it dummy(B)} {$\xrightarrow[\text{}]{\text{$\ell'$}}$} {\it $B_1$} for some $B_1$ (Lemma 5.4.5). If we can show that fst($B_1$) = $dummy(A_L)$, we are done. 
+
+This is done by Lemma 5.4.4 with $P$ = $dummy(B)$. Using it, we get fst($B_1$) = $dummy(A_L)$. That shows that $dummy(B_0)$ is diff equivalent. (Since the 3rd point in Defintion 4.3.1 is shown by the same proof, replacing fst with snd and 5.2.3 proves the first point). And we know that by the dummy lemma, diff equivalence of dummy implies diff equivalence of $B_0$ also.
 
 
 \end{document}
