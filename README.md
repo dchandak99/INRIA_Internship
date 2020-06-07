@@ -52,9 +52,9 @@ extensions of Tamarin.
   
      
 ### Repository Explanation:
-- [Sap_Tam](Sap_Tam) contains protocols in SAPIC(.sapic) and Tamarin(.spthy). You can visualise them via the Tamarin tool. [Eq_Att](Sap_Tam/Eq_Att) contains the sapic and tamarin files to test the diff operator in sapic, and try out various corner and edge cases.  
+- [Sap_Tam](Sap_Tam) contains protocols in SAPIC(.sapic) and Tamarin(.spthy). You can visualise them via the Tamarin tool. [Eq_Att](Sap_Tam/Eq_Att) contains the sapic and tamarin files to test the diff operator in sapic, and try out various corner and edge cases.
 - [code](code) contains various directories with directory names corresponding to the property/protocol which is explored in the code in the directory. The [ProVerif](code/ProVerif) directory contains .pv files and has the code using *diff* operator in [ProVerif](https://prosecco.gforge.inria.fr/personal/bblanche/publications/BlanchetFnTPS16.pdf).
-- [Internship_Report.tex](Internship_Report.tex) contains the *definitions* which I have introduced:
+- [Internship_Report.tex](Internship_Report.tex) contains the *definitions* and *proofs* which I have introduced:
 
   * Biprocesses in SAPIC  
   * Translation of Biprocesses  
@@ -65,4 +65,5 @@ extensions of Tamarin.
     - Bi-Operational Semantics
 
 - Dummy Events
+- **Proof** that Tamarin Equivalence implies SAPIC equivalence i.e. ensured the soundness of the translation from SAPIC to Tamarin. 
 
