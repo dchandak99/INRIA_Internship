@@ -43,10 +43,10 @@ extensions of Tamarin.
 
 **Links:**
 
-[1] http://tamarin-prover.github.io/
-[2] https://prosecco.gforge.inria.fr/personal/bblanche/proverif/
-[3] http://sapic.gforge.inria.fr/
-[4] https://hal.inria.fr/hal-01090874/document
-[5] https://hal.inria.fr/hal-01351388/document
-[6] https://hal.archives-ouvertes.fr/hal-01337409v2/document
+[1] http://tamarin-prover.github.io/  
+[2] https://prosecco.gforge.inria.fr/personal/bblanche/proverif/  
+[3] http://sapic.gforge.inria.fr/  
+[4] https://hal.inria.fr/hal-01090874/document  
+[5] https://hal.inria.fr/hal-01351388/document  
+[6] https://hal.archives-ouvertes.fr/hal-01337409v2/document  
 
