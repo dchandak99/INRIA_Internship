@@ -1,7 +1,7 @@
 # INRIA_Internship
 
 ### Formal Verification of Security Protocols | Cryptography
-I was a Research Intern at INRIA Nancy during April and May 2020, under Professors Steve Kremer and Jannik Dreier.
+I was a Research Intern at [INRIA](https://www.inria.fr/en) Nancy during April and May 2020, under Professors [Steve Kremer](https://members.loria.fr/SKremer/) and [Jannik Dreier](https://members.loria.fr/JDreier/).
 
 **Highlights:**
 - Studied operational semantics and equivalence properties (in *applied pi calculus* and **Tamarin** prover), the current translation of **SAPIC** (tool translating high level protocols to multiset rewrite rules, analyzable by Tamarin)
