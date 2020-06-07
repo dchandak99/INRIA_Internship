@@ -7,7 +7,7 @@ I was a Research Intern at [INRIA](https://www.inria.fr/en) Nancy during April a
 - Studied operational semantics and equivalence properties (in *applied pi calculus* and **Tamarin** prover), the current translation of **SAPIC** (tool translating high level protocols to multiset rewrite rules, analyzable by Tamarin)
 - Introduced biprocesses (*with bisemantics and their translation*), static equivalence and diff equivalence (*& diff operator*) in SAPIC, ensuring the soundness of the translation after the addition
 
-### Goal:
+### Problem Statement:
 Security protocols are distributed programs that aim at ensuring
 security properties, such as confidentiality, authentication or
 anonymity, by the means of cryptography. Such protocols are
