@@ -59,8 +59,10 @@ extensions of Tamarin.
   * Biprocesses in SAPIC  
   * Translation of Biprocesses  
   * Tamarin Equivalent Biprocess  
-  * Diff Equivalence in SAPIC
+  * Diff Equivalence in SAPIC:
     - Static Equivalence
-    -
+    - Recipes
+    - Bi-Operational Semantics
 
+- Dummy Events
 
