@@ -52,5 +52,7 @@ extensions of Tamarin.
   
      
 ### Repository Explanation:
-- [Sap_Tam](Sap_Tam) contains
+- [Sap_Tam](Sap_Tam) contains protocols in SAPIC(.sapic) and Tamarin(.spthy). You can visualise them via the Tamarin tool. [Eq_Att](Sap_Tam/Eq_Att) contains the sapic and tamarin files to test the diff operator in sapic, and try out various corner and edge cases.  
+-
+
 
