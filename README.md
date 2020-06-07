@@ -18,6 +18,7 @@ the protocol is executed over untrusted networks (such as the
 Internet), these protocols have shown extremely difficult to get
 right. Formal methods have shown very useful to detect errors
 and ensure their correctness.
+
 We generally distinguish two families of security properties :
 trace properties and observational equivalence properties. Trace
 properties verify a predicate on a given trace and are typically
@@ -25,6 +26,7 @@ used to express authentication properties. Observational
 equivalence expresses that an adversary cannot distinguish two
 situations and is used to model anonymity and strong
 confidentiality properties.
+
 The Tamarin prover is a state-of-the art protocol verification tool
 which has been successfully used to verify standards such as
 TLS 1.3 and 5G AKA, as well as industrial protocols such as OPC
