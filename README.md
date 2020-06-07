@@ -19,7 +19,7 @@ Internet), these protocols have shown extremely difficult to get
 right. Formal methods have shown very useful to detect errors
 and ensure their correctness.
 
-We generally distinguish two families of security properties :
+We generally distinguish two families of security properties:
 trace properties and observational equivalence properties. Trace
 properties verify a predicate on a given trace and are typically
 used to express authentication properties. Observational
