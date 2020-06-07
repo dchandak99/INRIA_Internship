@@ -39,8 +39,8 @@ written in a first-order logic, allowing to express trace properties.
 The goal of the internship is to extend SAPIC to observational
 equivalences in order to take advantage of the recent
 extensions of Tamarin.
-
-
+  
+  
 **Links:**
 
 [1] http://tamarin-prover.github.io/  
