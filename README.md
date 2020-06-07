@@ -40,4 +40,13 @@ The goal of the internship is to extend SAPIC to observational
 equivalences in order to take advantage of the recent
 extensions of Tamarin.
 
-To be updated using CV, int_details.pdf and https://help.github.com/en/github/writing-on-github/basic-writing-and-formatting-syntax
+
+**Links:**
+
+[1] http://tamarin-prover.github.io/
+[2] https://prosecco.gforge.inria.fr/personal/bblanche/proverif/
+[3] http://sapic.gforge.inria.fr/
+[4] https://hal.inria.fr/hal-01090874/document
+[5] https://hal.inria.fr/hal-01351388/document
+[6] https://hal.archives-ouvertes.fr/hal-01337409v2/document
+
