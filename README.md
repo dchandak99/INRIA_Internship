@@ -1,6 +1,6 @@
 # INRIA_Internship
 
-## Work: Formal Verification of Security Protocols | Cryptography
+### Formal Verification of Security Protocols | Cryptography
 I was a Research Intern at INRIA Nancy during April and May 2020, under Professors Steve Kremer and Jannik Dreier.
 
 
