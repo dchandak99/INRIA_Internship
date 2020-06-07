@@ -56,9 +56,11 @@ extensions of Tamarin.
 - [code](code) contains various directories with directory names corresponding to the property/protocol which is explored in the code in the directory. The [ProVerif](code/ProVerif) directory contains .pv files and has the code using *diff* operator in [ProVerif](https://prosecco.gforge.inria.fr/personal/bblanche/publications/BlanchetFnTPS16.pdf).
 - [Internship_Report.tex](Internship_Report.tex) contains the *definitions* which I have introduced:
 
-  * Biprocesse in SAPIC  
-  * Translation of Birpocesses  
+  * Biprocesses in SAPIC  
+  * Translation of Biprocesses  
   * Tamarin Equivalent Biprocess  
-  *
+  * Diff Equivalence in SAPIC
+    - Static Equivalence
+    -
 
 
