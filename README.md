@@ -64,6 +64,6 @@ extensions of Tamarin.
     - Recipes
     - Bi-Operational Semantics
 
-- Dummy Events
+- Dummy Events to unhide silent actions
 - **Proof** that Tamarin Equivalence implies SAPIC equivalence i.e. ensured the soundness of the translation from SAPIC to Tamarin. 
 
