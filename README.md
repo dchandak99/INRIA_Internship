@@ -55,8 +55,9 @@ extensions of Tamarin.
 - [Sap_Tam](Sap_Tam) contains protocols in SAPIC(.sapic) and Tamarin(.spthy). You can visualise them via the Tamarin tool. [Eq_Att](Sap_Tam/Eq_Att) contains the sapic and tamarin files to test the diff operator in sapic, and try out various corner and edge cases.  
 - [code](code) contains various directories with directory names corresponding to the property/protocol which is explored in the code in the directory. The [ProVerif](code/ProVerif) directory contains .pv files and has the code using *diff* operator in [ProVerif](https://prosecco.gforge.inria.fr/personal/bblanche/publications/BlanchetFnTPS16.pdf).
 - [Internship_Report.tex](Internship_Report.tex) contains the *definitions* which I have introduced:
-  *
-  *
+  * Biprocesse in SAPIC  
+  * Translation of Birpocesses  
+  * Tamarin Equivalent Biprocess  
   *
 
 
