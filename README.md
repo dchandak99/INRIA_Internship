@@ -63,7 +63,6 @@ extensions of Tamarin.
     - Static Equivalence
     - Recipes
     - Bi-Operational Semantics
-
-- *Dummy* Events in SAPIC to unhide silent actions for the translation
-- **Proof** that Tamarin Equivalence implies SAPIC equivalence i.e. ensured the soundness of the translation from SAPIC to Tamarin
+  * *Dummy* Events in SAPIC to unhide silent actions for the translation
+  * **Proof** that Tamarin Equivalence implies SAPIC equivalence i.e. ensured the soundness of the translation from SAPIC to Tamarin
 
