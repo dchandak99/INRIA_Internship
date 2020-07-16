@@ -4,8 +4,8 @@
 I was a Research Intern at [INRIA](https://www.inria.fr/en) Nancy during April and May 2020, under Professors [Steve Kremer](https://members.loria.fr/SKremer/) and [Jannik Dreier](https://members.loria.fr/JDreier/).
 
 **Highlights:**
-- Studied operational semantics and equivalence properties (in *applied pi calculus* and **Tamarin** prover), the current translation of **SAPIC** (tool translating high level protocols to multiset rewrite rules, analyzable by Tamarin)
-- Introduced biprocesses (*with bisemantics and their translation*), static equivalence and diff equivalence (*& diff operator*) in SAPIC, ensuring the soundness of the translation after the addition
+- Studied operational semantics and equivalence properties (in the *applied pi calculus* and the **Tamarin** prover) and the **SAPIC** plugin (tool translating high level protocols to multiset rewrite rules, analyzable by Tamarin)
+- Introduced the notion of biprocesses (*semantics and translation*) and diff equivalence in SAPIC, and worked  on the soundness proof of the translation after the addition
 
 ### Problem Statement:
 Security protocols are distributed programs that aim at ensuring
